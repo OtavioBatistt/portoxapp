@@ -1,0 +1,118 @@
+{
+  "project_info": {
+    "project_number": "673489685958",
+    "project_id": "portox-app-hml",
+    "storage_bucket": "portox-app-hml.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:673489685958:android:b76fabe396f80331d7f6c7",
+        "android_client_info": {
+          "package_name": "oxiteno.portox.hml"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "673489685958-6d387u0l8euj4ct2bnnav7to0jqvclie.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBzJTBr8ZvebmF26L4ee0xtSH66CMv3t1I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "673489685958-6d387u0l8euj4ct2bnnav7to0jqvclie.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "673489685958-i15r17mnc649qpv98qu31931e2dvpfql.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "oxiteno.portoxApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:673489685958:android:a142141f68ae80b8d7f6c7",
+        "android_client_info": {
+          "package_name": "oxiteno.portox_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "673489685958-6d387u0l8euj4ct2bnnav7to0jqvclie.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBzJTBr8ZvebmF26L4ee0xtSH66CMv3t1I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "673489685958-6d387u0l8euj4ct2bnnav7to0jqvclie.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "673489685958-i15r17mnc649qpv98qu31931e2dvpfql.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "oxiteno.portoxApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:673489685958:android:ea2c4bc8c1b988e9d7f6c7",
+        "android_client_info": {
+          "package_name": "oxiteno.portox_app.hml"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "673489685958-6d387u0l8euj4ct2bnnav7to0jqvclie.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBzJTBr8ZvebmF26L4ee0xtSH66CMv3t1I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "673489685958-6d387u0l8euj4ct2bnnav7to0jqvclie.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "673489685958-i15r17mnc649qpv98qu31931e2dvpfql.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "oxiteno.portoxApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

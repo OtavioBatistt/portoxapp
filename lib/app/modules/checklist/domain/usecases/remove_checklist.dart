@@ -1,0 +1,26 @@
+import 'dart:async';
+
+import 'package:dartz/dartz.dart';
+import 'package:portox_app/app/commons/default_errors.dart';
+
+import 'package:portox_app/app/modules/checklist/domain/repositories/remove_checklist_repository.dart';
+
+class RemoveChecklistUseCase {
+  RemoveChecklistUseCase({
+    required IRemoveChecklistRepository checklistRepository,
+  }) : _checklistRepository = checklistRepository;
+  final IRemoveChecklistRepository _checklistRepository;
+
+  Future<Either<Failure, void>> call({
+    required String flowCode,
+    required String scheduleNumber,
+    int? compartment,
+  }) async {
+    final result = await _checklistRepository.removeChecklist(
+      flowCode: flowCode,
+      scheduleNumber: scheduleNumber,
+      compartment: compartment,
+    );
+    return result.fold(left, right);
+  }
+}

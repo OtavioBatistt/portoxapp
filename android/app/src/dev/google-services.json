@@ -1,0 +1,97 @@
+{
+  "project_info": {
+    "project_number": "3799305459",
+    "project_id": "portox-app-dev",
+    "storage_bucket": "portox-app-dev.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:3799305459:android:14eee097a1a5d14afb7b86",
+        "android_client_info": {
+          "package_name": "oxiteno.portox.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "3799305459-9ts61ekq1s19uvibea4779041a1uc52d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCCf1PfypVe8p5SRcqjfG3eCvVP0IYb4ks"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "3799305459-9ts61ekq1s19uvibea4779041a1uc52d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:3799305459:android:d181730358dade53fb7b86",
+        "android_client_info": {
+          "package_name": "oxiteno.portox_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "3799305459-9ts61ekq1s19uvibea4779041a1uc52d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCCf1PfypVe8p5SRcqjfG3eCvVP0IYb4ks"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "3799305459-9ts61ekq1s19uvibea4779041a1uc52d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:3799305459:android:dbc614497ec92222fb7b86",
+        "android_client_info": {
+          "package_name": "oxiteno.portox_app.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "3799305459-9ts61ekq1s19uvibea4779041a1uc52d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCCf1PfypVe8p5SRcqjfG3eCvVP0IYb4ks"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "3799305459-9ts61ekq1s19uvibea4779041a1uc52d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
