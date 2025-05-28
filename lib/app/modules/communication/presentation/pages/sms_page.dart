@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:portox_app/app/commons/adapters/localizations/translate_app.dart';
 import 'package:portox_app/app/commons/adapters/storage/isar/entities/isar_schedule_driver_phone_entity.dart';
 import 'package:portox_app/app/commons/styles/tokens.dart';
@@ -44,14 +43,8 @@ class _SmsPageState extends State<SmsPage> {
 
   Locale deviceLocale = WidgetsBinding.instance.window.locale;
 
-  final _maskFormatterPhone = MaskTextInputFormatter(
-      mask: '(##) #####-####',
-      filter: {"#": RegExp(r'[0-9]')},
-      type: MaskAutoCompletionType.lazy);
-
   bool _isEngLan = false;
   bool _isLoading = false;
-  bool _driverPhoneIsEmpty = false;
 
   String _selectedOption = '';
   String _baseMessage = '';
@@ -83,7 +76,6 @@ class _SmsPageState extends State<SmsPage> {
         : 'Chamada de Motorista: Atualização Agendamento ${widget.schedule} Veículo ${widget.plates}.';
     _updateMessage();
     _loadMessageCount();
-    _driverPhoneIsEmpty = _phoneController.text.isEmpty;
   }
 
   Future<void> _initializeFirebase() async {
@@ -214,21 +206,11 @@ class _SmsPageState extends State<SmsPage> {
                       children: [
                         const OxBackButton(),
                         SizedBox(height: Ox.space.ref50.h),
-                        if (_driverPhoneIsEmpty)
-                          OxDataTextField(
-                            title: intl(context, 'sms-page.phone'),
-                            value: _phoneController.text,
-                            controller: _phoneController,
-                            keyboardType: TextInputType.number,
-                            readOnly: false,
-                            inputFormatters: [_maskFormatterPhone],
-                          )
-                        else
-                          OxDataTextField(
-                            title: intl(context, 'sms-page.phone'),
-                            value: _phoneController.text,
-                            controller: _phoneController,
-                          ),
+                        OxDataTextField(
+                          title: intl(context, 'sms-page.phone'),
+                          value: _phoneController.text,
+                          controller: _phoneController,
+                        ),
                         SizedBox(height: Ox.space.ref50.h),
                         OxDataTextField(
                           title: intl(context, 'sms-page.schedule'),

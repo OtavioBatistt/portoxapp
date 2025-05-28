@@ -22,16 +22,4 @@ class LoadSealRepository implements ILoadSealRepository {
       return left(ClientError());
     }
   }
-
-  @override
-  Future<Either<Failure, List<String>>> loadSealCodesByScheduleNumber(
-      String scheduleNumber) async {
-    try {
-      final result = await _loadChecklistSeal
-          .loadSealCodesByScheduleNumber(scheduleNumber);
-      return right(result);
-    } on Exception {
-      return left(ClientError());
-    }
-  }
 }

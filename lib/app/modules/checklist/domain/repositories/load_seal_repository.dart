@@ -5,8 +5,4 @@ abstract class ILoadSealRepository {
   Future<Either<Failure, bool>> loadSeal(
     String sealCode,
   );
-
-  Future<Either<Failure, List<String>>> loadSealCodesByScheduleNumber(
-    String scheduleNumber,
-  );
 }

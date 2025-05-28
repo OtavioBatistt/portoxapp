@@ -186,18 +186,4 @@ class IsarCredentialsAdapter implements ILocalStorageAdapter {
       }
     });
   }
-
-  @override
-  Future<List<String>> loadSealCodesByScheduleNumber(
-      String scheduleNumber) async {
-    var results = await isar.isarChecklistSealEntitys
-        .filter()
-        .scheduleNumberEqualTo(scheduleNumber)
-        .findAll();
-
-    return results
-        .map((entity) => entity.sealCode ?? '')
-        .where((code) => code.isNotEmpty)
-        .toList();
-  }
 }

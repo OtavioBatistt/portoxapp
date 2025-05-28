@@ -16,26 +16,25 @@ extension GetIsarFlowStepsEntityCollection on Isar {
 const IsarFlowStepsEntitySchema = CollectionSchema(
   name: 'IsarFlowStepsEntity',
   schema:
-      '{"name":"IsarFlowStepsEntity","idName":"id","properties":[{"name":"compartmented","type":"Bool"},{"name":"flowCode","type":"String"},{"name":"flowDescription","type":"String"},{"name":"flowStepId","type":"String"},{"name":"flowTime","type":"String"},{"name":"iconName","type":"String"},{"name":"locationGroup","type":"String"},{"name":"operationType","type":"String"},{"name":"plantCode","type":"String"},{"name":"plantDescription","type":"String"},{"name":"profileCode","type":"String"},{"name":"profileName","type":"String"},{"name":"questions","type":"Bool"},{"name":"sequence","type":"Double"},{"name":"signatures","type":"Bool"},{"name":"skippable","type":"Bool"},{"name":"windowType","type":"String"}],"indexes":[],"links":[]}',
+      '{"name":"IsarFlowStepsEntity","idName":"id","properties":[{"name":"compartmented","type":"Bool"},{"name":"flowCode","type":"String"},{"name":"flowDescription","type":"String"},{"name":"flowStepId","type":"String"},{"name":"iconName","type":"String"},{"name":"locationGroup","type":"String"},{"name":"operationType","type":"String"},{"name":"plantCode","type":"String"},{"name":"plantDescription","type":"String"},{"name":"profileCode","type":"String"},{"name":"profileName","type":"String"},{"name":"questions","type":"Bool"},{"name":"sequence","type":"Double"},{"name":"signatures","type":"Bool"},{"name":"skippable","type":"Bool"},{"name":"windowType","type":"String"}],"indexes":[],"links":[]}',
   idName: 'id',
   propertyIds: {
     'compartmented': 0,
     'flowCode': 1,
     'flowDescription': 2,
     'flowStepId': 3,
-    'flowTime': 4,
-    'iconName': 5,
-    'locationGroup': 6,
-    'operationType': 7,
-    'plantCode': 8,
-    'plantDescription': 9,
-    'profileCode': 10,
-    'profileName': 11,
-    'questions': 12,
-    'sequence': 13,
-    'signatures': 14,
-    'skippable': 15,
-    'windowType': 16
+    'iconName': 4,
+    'locationGroup': 5,
+    'operationType': 6,
+    'plantCode': 7,
+    'plantDescription': 8,
+    'profileCode': 9,
+    'profileName': 10,
+    'questions': 11,
+    'sequence': 12,
+    'signatures': 13,
+    'skippable': 14,
+    'windowType': 15
   },
   listProperties: {},
   indexIds: {},
@@ -99,66 +98,60 @@ void _isarFlowStepsEntitySerializeNative(
     _flowStepId = IsarBinaryWriter.utf8Encoder.convert(value3);
   }
   dynamicSize += (_flowStepId?.length ?? 0) as int;
-  final value4 = object.flowTime;
-  IsarUint8List? _flowTime;
-  if (value4 != null) {
-    _flowTime = IsarBinaryWriter.utf8Encoder.convert(value4);
-  }
-  dynamicSize += (_flowTime?.length ?? 0) as int;
-  final value5 = object.iconName;
+  final value4 = object.iconName;
   IsarUint8List? _iconName;
-  if (value5 != null) {
-    _iconName = IsarBinaryWriter.utf8Encoder.convert(value5);
+  if (value4 != null) {
+    _iconName = IsarBinaryWriter.utf8Encoder.convert(value4);
   }
   dynamicSize += (_iconName?.length ?? 0) as int;
-  final value6 = object.locationGroup;
+  final value5 = object.locationGroup;
   IsarUint8List? _locationGroup;
-  if (value6 != null) {
-    _locationGroup = IsarBinaryWriter.utf8Encoder.convert(value6);
+  if (value5 != null) {
+    _locationGroup = IsarBinaryWriter.utf8Encoder.convert(value5);
   }
   dynamicSize += (_locationGroup?.length ?? 0) as int;
-  final value7 = object.operationType;
+  final value6 = object.operationType;
   IsarUint8List? _operationType;
-  if (value7 != null) {
-    _operationType = IsarBinaryWriter.utf8Encoder.convert(value7);
+  if (value6 != null) {
+    _operationType = IsarBinaryWriter.utf8Encoder.convert(value6);
   }
   dynamicSize += (_operationType?.length ?? 0) as int;
-  final value8 = object.plantCode;
+  final value7 = object.plantCode;
   IsarUint8List? _plantCode;
-  if (value8 != null) {
-    _plantCode = IsarBinaryWriter.utf8Encoder.convert(value8);
+  if (value7 != null) {
+    _plantCode = IsarBinaryWriter.utf8Encoder.convert(value7);
   }
   dynamicSize += (_plantCode?.length ?? 0) as int;
-  final value9 = object.plantDescription;
+  final value8 = object.plantDescription;
   IsarUint8List? _plantDescription;
-  if (value9 != null) {
-    _plantDescription = IsarBinaryWriter.utf8Encoder.convert(value9);
+  if (value8 != null) {
+    _plantDescription = IsarBinaryWriter.utf8Encoder.convert(value8);
   }
   dynamicSize += (_plantDescription?.length ?? 0) as int;
-  final value10 = object.profileCode;
+  final value9 = object.profileCode;
   IsarUint8List? _profileCode;
-  if (value10 != null) {
-    _profileCode = IsarBinaryWriter.utf8Encoder.convert(value10);
+  if (value9 != null) {
+    _profileCode = IsarBinaryWriter.utf8Encoder.convert(value9);
   }
   dynamicSize += (_profileCode?.length ?? 0) as int;
-  final value11 = object.profileName;
+  final value10 = object.profileName;
   IsarUint8List? _profileName;
-  if (value11 != null) {
-    _profileName = IsarBinaryWriter.utf8Encoder.convert(value11);
+  if (value10 != null) {
+    _profileName = IsarBinaryWriter.utf8Encoder.convert(value10);
   }
   dynamicSize += (_profileName?.length ?? 0) as int;
-  final value12 = object.questions;
-  final _questions = value12;
-  final value13 = object.sequence;
-  final _sequence = value13;
-  final value14 = object.signatures;
-  final _signatures = value14;
-  final value15 = object.skippable;
-  final _skippable = value15;
-  final value16 = object.windowType;
+  final value11 = object.questions;
+  final _questions = value11;
+  final value12 = object.sequence;
+  final _sequence = value12;
+  final value13 = object.signatures;
+  final _signatures = value13;
+  final value14 = object.skippable;
+  final _skippable = value14;
+  final value15 = object.windowType;
   IsarUint8List? _windowType;
-  if (value16 != null) {
-    _windowType = IsarBinaryWriter.utf8Encoder.convert(value16);
+  if (value15 != null) {
+    _windowType = IsarBinaryWriter.utf8Encoder.convert(value15);
   }
   dynamicSize += (_windowType?.length ?? 0) as int;
   final size = staticSize + dynamicSize;
@@ -171,19 +164,18 @@ void _isarFlowStepsEntitySerializeNative(
   writer.writeBytes(offsets[1], _flowCode);
   writer.writeBytes(offsets[2], _flowDescription);
   writer.writeBytes(offsets[3], _flowStepId);
-  writer.writeBytes(offsets[4], _flowTime);
-  writer.writeBytes(offsets[5], _iconName);
-  writer.writeBytes(offsets[6], _locationGroup);
-  writer.writeBytes(offsets[7], _operationType);
-  writer.writeBytes(offsets[8], _plantCode);
-  writer.writeBytes(offsets[9], _plantDescription);
-  writer.writeBytes(offsets[10], _profileCode);
-  writer.writeBytes(offsets[11], _profileName);
-  writer.writeBool(offsets[12], _questions);
-  writer.writeDouble(offsets[13], _sequence);
-  writer.writeBool(offsets[14], _signatures);
-  writer.writeBool(offsets[15], _skippable);
-  writer.writeBytes(offsets[16], _windowType);
+  writer.writeBytes(offsets[4], _iconName);
+  writer.writeBytes(offsets[5], _locationGroup);
+  writer.writeBytes(offsets[6], _operationType);
+  writer.writeBytes(offsets[7], _plantCode);
+  writer.writeBytes(offsets[8], _plantDescription);
+  writer.writeBytes(offsets[9], _profileCode);
+  writer.writeBytes(offsets[10], _profileName);
+  writer.writeBool(offsets[11], _questions);
+  writer.writeDouble(offsets[12], _sequence);
+  writer.writeBool(offsets[13], _signatures);
+  writer.writeBool(offsets[14], _skippable);
+  writer.writeBytes(offsets[15], _windowType);
 }
 
 IsarFlowStepsEntity _isarFlowStepsEntityDeserializeNative(
@@ -196,20 +188,19 @@ IsarFlowStepsEntity _isarFlowStepsEntityDeserializeNative(
   object.flowCode = reader.readStringOrNull(offsets[1]);
   object.flowDescription = reader.readStringOrNull(offsets[2]);
   object.flowStepId = reader.readStringOrNull(offsets[3]);
-  object.flowTime = reader.readStringOrNull(offsets[4]);
-  object.iconName = reader.readStringOrNull(offsets[5]);
+  object.iconName = reader.readStringOrNull(offsets[4]);
   object.id = id;
-  object.locationGroup = reader.readStringOrNull(offsets[6]);
-  object.operationType = reader.readStringOrNull(offsets[7]);
-  object.plantCode = reader.readStringOrNull(offsets[8]);
-  object.plantDescription = reader.readStringOrNull(offsets[9]);
-  object.profileCode = reader.readStringOrNull(offsets[10]);
-  object.profileName = reader.readStringOrNull(offsets[11]);
-  object.questions = reader.readBoolOrNull(offsets[12]);
-  object.sequence = reader.readDoubleOrNull(offsets[13]);
-  object.signatures = reader.readBoolOrNull(offsets[14]);
-  object.skippable = reader.readBoolOrNull(offsets[15]);
-  object.windowType = reader.readStringOrNull(offsets[16]);
+  object.locationGroup = reader.readStringOrNull(offsets[5]);
+  object.operationType = reader.readStringOrNull(offsets[6]);
+  object.plantCode = reader.readStringOrNull(offsets[7]);
+  object.plantDescription = reader.readStringOrNull(offsets[8]);
+  object.profileCode = reader.readStringOrNull(offsets[9]);
+  object.profileName = reader.readStringOrNull(offsets[10]);
+  object.questions = reader.readBoolOrNull(offsets[11]);
+  object.sequence = reader.readDoubleOrNull(offsets[12]);
+  object.signatures = reader.readBoolOrNull(offsets[13]);
+  object.skippable = reader.readBoolOrNull(offsets[14]);
+  object.windowType = reader.readStringOrNull(offsets[15]);
   return object;
 }
 
@@ -241,16 +232,14 @@ P _isarFlowStepsEntityDeserializePropNative<P>(
     case 10:
       return (reader.readStringOrNull(offset)) as P;
     case 11:
-      return (reader.readStringOrNull(offset)) as P;
-    case 12:
       return (reader.readBoolOrNull(offset)) as P;
-    case 13:
+    case 12:
       return (reader.readDoubleOrNull(offset)) as P;
+    case 13:
+      return (reader.readBoolOrNull(offset)) as P;
     case 14:
       return (reader.readBoolOrNull(offset)) as P;
     case 15:
-      return (reader.readBoolOrNull(offset)) as P;
-    case 16:
       return (reader.readStringOrNull(offset)) as P;
     default:
       throw 'Illegal propertyIndex';
@@ -265,7 +254,6 @@ dynamic _isarFlowStepsEntitySerializeWeb(
   IsarNative.jsObjectSet(jsObj, 'flowCode', object.flowCode);
   IsarNative.jsObjectSet(jsObj, 'flowDescription', object.flowDescription);
   IsarNative.jsObjectSet(jsObj, 'flowStepId', object.flowStepId);
-  IsarNative.jsObjectSet(jsObj, 'flowTime', object.flowTime);
   IsarNative.jsObjectSet(jsObj, 'iconName', object.iconName);
   IsarNative.jsObjectSet(jsObj, 'id', object.id);
   IsarNative.jsObjectSet(jsObj, 'locationGroup', object.locationGroup);
@@ -289,7 +277,6 @@ IsarFlowStepsEntity _isarFlowStepsEntityDeserializeWeb(
   object.flowCode = IsarNative.jsObjectGet(jsObj, 'flowCode');
   object.flowDescription = IsarNative.jsObjectGet(jsObj, 'flowDescription');
   object.flowStepId = IsarNative.jsObjectGet(jsObj, 'flowStepId');
-  object.flowTime = IsarNative.jsObjectGet(jsObj, 'flowTime');
   object.iconName = IsarNative.jsObjectGet(jsObj, 'iconName');
   object.id = IsarNative.jsObjectGet(jsObj, 'id') ?? double.negativeInfinity;
   object.locationGroup = IsarNative.jsObjectGet(jsObj, 'locationGroup');
@@ -316,8 +303,6 @@ P _isarFlowStepsEntityDeserializePropWeb<P>(Object jsObj, String propertyName) {
       return (IsarNative.jsObjectGet(jsObj, 'flowDescription')) as P;
     case 'flowStepId':
       return (IsarNative.jsObjectGet(jsObj, 'flowStepId')) as P;
-    case 'flowTime':
-      return (IsarNative.jsObjectGet(jsObj, 'flowTime')) as P;
     case 'iconName':
       return (IsarNative.jsObjectGet(jsObj, 'iconName')) as P;
     case 'id':
@@ -782,122 +767,6 @@ extension IsarFlowStepsEntityQueryFilter on QueryBuilder<IsarFlowStepsEntity,
     return addFilterConditionInternal(FilterCondition(
       type: ConditionType.matches,
       property: 'flowStepId',
-      value: pattern,
-      caseSensitive: caseSensitive,
-    ));
-  }
-
-  QueryBuilder<IsarFlowStepsEntity, IsarFlowStepsEntity, QAfterFilterCondition>
-      flowTimeIsNull() {
-    return addFilterConditionInternal(FilterCondition(
-      type: ConditionType.isNull,
-      property: 'flowTime',
-      value: null,
-    ));
-  }
-
-  QueryBuilder<IsarFlowStepsEntity, IsarFlowStepsEntity, QAfterFilterCondition>
-      flowTimeEqualTo(
-    String? value, {
-    bool caseSensitive = true,
-  }) {
-    return addFilterConditionInternal(FilterCondition(
-      type: ConditionType.eq,
-      property: 'flowTime',
-      value: value,
-      caseSensitive: caseSensitive,
-    ));
-  }
-
-  QueryBuilder<IsarFlowStepsEntity, IsarFlowStepsEntity, QAfterFilterCondition>
-      flowTimeGreaterThan(
-    String? value, {
-    bool caseSensitive = true,
-    bool include = false,
-  }) {
-    return addFilterConditionInternal(FilterCondition(
-      type: ConditionType.gt,
-      include: include,
-      property: 'flowTime',
-      value: value,
-      caseSensitive: caseSensitive,
-    ));
-  }
-
-  QueryBuilder<IsarFlowStepsEntity, IsarFlowStepsEntity, QAfterFilterCondition>
-      flowTimeLessThan(
-    String? value, {
-    bool caseSensitive = true,
-    bool include = false,
-  }) {
-    return addFilterConditionInternal(FilterCondition(
-      type: ConditionType.lt,
-      include: include,
-      property: 'flowTime',
-      value: value,
-      caseSensitive: caseSensitive,
-    ));
-  }
-
-  QueryBuilder<IsarFlowStepsEntity, IsarFlowStepsEntity, QAfterFilterCondition>
-      flowTimeBetween(
-    String? lower,
-    String? upper, {
-    bool caseSensitive = true,
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return addFilterConditionInternal(FilterCondition.between(
-      property: 'flowTime',
-      lower: lower,
-      includeLower: includeLower,
-      upper: upper,
-      includeUpper: includeUpper,
-      caseSensitive: caseSensitive,
-    ));
-  }
-
-  QueryBuilder<IsarFlowStepsEntity, IsarFlowStepsEntity, QAfterFilterCondition>
-      flowTimeStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return addFilterConditionInternal(FilterCondition(
-      type: ConditionType.startsWith,
-      property: 'flowTime',
-      value: value,
-      caseSensitive: caseSensitive,
-    ));
-  }
-
-  QueryBuilder<IsarFlowStepsEntity, IsarFlowStepsEntity, QAfterFilterCondition>
-      flowTimeEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return addFilterConditionInternal(FilterCondition(
-      type: ConditionType.endsWith,
-      property: 'flowTime',
-      value: value,
-      caseSensitive: caseSensitive,
-    ));
-  }
-
-  QueryBuilder<IsarFlowStepsEntity, IsarFlowStepsEntity, QAfterFilterCondition>
-      flowTimeContains(String value, {bool caseSensitive = true}) {
-    return addFilterConditionInternal(FilterCondition(
-      type: ConditionType.contains,
-      property: 'flowTime',
-      value: value,
-      caseSensitive: caseSensitive,
-    ));
-  }
-
-  QueryBuilder<IsarFlowStepsEntity, IsarFlowStepsEntity, QAfterFilterCondition>
-      flowTimeMatches(String pattern, {bool caseSensitive = true}) {
-    return addFilterConditionInternal(FilterCondition(
-      type: ConditionType.matches,
-      property: 'flowTime',
       value: pattern,
       caseSensitive: caseSensitive,
     ));
@@ -2023,16 +1892,6 @@ extension IsarFlowStepsEntityQueryWhereSortBy
   }
 
   QueryBuilder<IsarFlowStepsEntity, IsarFlowStepsEntity, QAfterSortBy>
-      sortByFlowTime() {
-    return addSortByInternal('flowTime', Sort.asc);
-  }
-
-  QueryBuilder<IsarFlowStepsEntity, IsarFlowStepsEntity, QAfterSortBy>
-      sortByFlowTimeDesc() {
-    return addSortByInternal('flowTime', Sort.desc);
-  }
-
-  QueryBuilder<IsarFlowStepsEntity, IsarFlowStepsEntity, QAfterSortBy>
       sortByIconName() {
     return addSortByInternal('iconName', Sort.asc);
   }
@@ -2206,16 +2065,6 @@ extension IsarFlowStepsEntityQueryWhereSortThenBy
   }
 
   QueryBuilder<IsarFlowStepsEntity, IsarFlowStepsEntity, QAfterSortBy>
-      thenByFlowTime() {
-    return addSortByInternal('flowTime', Sort.asc);
-  }
-
-  QueryBuilder<IsarFlowStepsEntity, IsarFlowStepsEntity, QAfterSortBy>
-      thenByFlowTimeDesc() {
-    return addSortByInternal('flowTime', Sort.desc);
-  }
-
-  QueryBuilder<IsarFlowStepsEntity, IsarFlowStepsEntity, QAfterSortBy>
       thenByIconName() {
     return addSortByInternal('iconName', Sort.asc);
   }
@@ -2370,11 +2219,6 @@ extension IsarFlowStepsEntityQueryWhereDistinct
   }
 
   QueryBuilder<IsarFlowStepsEntity, IsarFlowStepsEntity, QDistinct>
-      distinctByFlowTime({bool caseSensitive = true}) {
-    return addDistinctByInternal('flowTime', caseSensitive: caseSensitive);
-  }
-
-  QueryBuilder<IsarFlowStepsEntity, IsarFlowStepsEntity, QDistinct>
       distinctByIconName({bool caseSensitive = true}) {
     return addDistinctByInternal('iconName', caseSensitive: caseSensitive);
   }
@@ -2461,11 +2305,6 @@ extension IsarFlowStepsEntityQueryProperty
   QueryBuilder<IsarFlowStepsEntity, String?, QQueryOperations>
       flowStepIdProperty() {
     return addPropertyNameInternal('flowStepId');
-  }
-
-  QueryBuilder<IsarFlowStepsEntity, String?, QQueryOperations>
-      flowTimeProperty() {
-    return addPropertyNameInternal('flowTime');
   }
 
   QueryBuilder<IsarFlowStepsEntity, String?, QQueryOperations>

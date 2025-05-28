@@ -4,7 +4,6 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:portox_app/app/commons/adapters/localizations/translate_app.dart';
-import 'package:portox_app/app/commons/adapters/storage/isar/entities/isar_schedule_driver_phone_entity.dart';
 import 'package:portox_app/app/commons/app_store.dart';
 import 'package:portox_app/app/commons/domain/flow_step_entity.dart';
 import 'package:portox_app/app/commons/domain/schedule_entity.dart';
@@ -23,7 +22,6 @@ import 'package:portox_app/app/modules/checklist/domain/entities/step_without_qu
 import 'package:portox_app/app/modules/checklist/presentation/stores/checklist_store.dart';
 import 'package:portox_app/app/modules/checklist/presentation/widgets/checklist_confirmation.dart';
 import 'package:portox_app/app/modules/occurrence/domain/entities/new_occurrence_params_entity.dart';
-import 'package:portox_app/app/modules/schedule/data/external/storage/local_storage_master_datasource.dart';
 import 'package:portox_app/app/modules/schedule/presentation/widgets/checklist_item.dart';
 
 class ChecklistPage extends StatefulWidget {
@@ -34,7 +32,6 @@ class ChecklistPage extends StatefulWidget {
     required this.schedule,
     required this.appStore,
     required this.store,
-    required this.storage,
     super.key,
   });
 
@@ -44,7 +41,6 @@ class ChecklistPage extends StatefulWidget {
   final ScheduleEntity schedule;
   final AppStore appStore;
   final ChecklistStore store;
-  final LocalStorageMasterDataSource storage;
 
   @override
   State<ChecklistPage> createState() => _ChecklistPageState();
@@ -54,9 +50,6 @@ class _ChecklistPageState extends State<ChecklistPage> {
   late ChecklistStore controller;
   Flushbar? errorFlushbar;
   Flushbar? successFlushbar;
-  IsarScheduleDriverPhoneEntity? _scheduleDriverPhone = null;
-  TextEditingController _phoneController = TextEditingController();
-  bool _hasDriverPhone = false;
 
   @override
   void initState() {
@@ -92,26 +85,7 @@ class _ChecklistPageState extends State<ChecklistPage> {
     super.dispose();
   }
 
-  Future<void> loadDriverPhoneNumber() async {
-    var phoneNumber =
-        await widget.storage.loadDriverPhone(widget.schedule.scheduleNumber);
-    if (phoneNumber != null) {
-      setState(() {
-        _hasDriverPhone = true;
-        _scheduleDriverPhone = phoneNumber;
-        _phoneController.text = _scheduleDriverPhone!.driverPhone!;
-      });
-    } else {
-      return;
-    }
-  }
-
   bool checkWasExecuted(FlowStepEntity flowStep) {
-    if (flowStep.flowCode == 'AWAITTING_SCAN_SEAL') {
-      return controller.executedSteps
-          .any((executed) => executed.flowCode == flowStep.flowCode);
-    }
-
     if (flowStep.compartmented) {
       final compartments =
           widget.schedule.lines.map((line) => line.compartment).toList();
@@ -277,7 +251,6 @@ class _ChecklistPageState extends State<ChecklistPage> {
             step: item.getStep(),
             onTap: () => handleConfirmation(item),
             wasExecuted: checkWasExecuted(item),
-            isScanSeal: item.flowCode == 'AWAITTING_SCAN_SEAL',
           );
         },
       );
@@ -324,57 +297,16 @@ class _ChecklistPageState extends State<ChecklistPage> {
                   ],
                 ),
                 SizedBox(height: Ox.space.ref40.h),
-                if (widget.fromScanner)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        widget.schedule.scheduleNumber,
-                        style: TextStyle(
-                          fontSize: Ox.fontSizes.ref60,
-                          color: Ox.colors.blue,
-                        ),
-                      ),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          elevation: Ox.elevation.medium,
-                          fixedSize: Size(Ox.size.ref160.w, Ox.size.ref120.h),
-                          backgroundColor: Ox.colors.green,
-                          shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(Ox.radii.ref10),
-                              side: BorderSide(color: Ox.colors.black)),
-                        ),
-                        child: Icon(
-                          Icons.sms_outlined,
-                          color: Ox.colors.black,
-                          size: 28,
-                        ),
-                        onPressed: () async {
-                          await loadDriverPhoneNumber();
-                          Modular.to.pushNamed(
-                            '/schedule/communication',
-                            arguments: {
-                              'phone': _phoneController.text,
-                              'plates': widget.schedule.truckPlate,
-                              'schedule': widget.schedule.scheduleNumber,
-                            },
-                          );
-                        },
-                      ),
-                    ],
-                  )
-                else
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      widget.schedule.scheduleNumber,
-                      style: TextStyle(
-                        fontSize: Ox.fontSizes.ref60,
-                        color: Ox.colors.blue,
-                      ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    widget.schedule.scheduleNumber,
+                    style: TextStyle(
+                      fontSize: Ox.fontSizes.ref60,
+                      color: Ox.colors.blue,
                     ),
                   ),
+                ),
                 SizedBox(height: Ox.space.ref10.h),
                 Divider(
                   color: Ox.colors.grayLight,

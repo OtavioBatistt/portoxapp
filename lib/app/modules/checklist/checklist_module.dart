@@ -31,9 +31,9 @@ import 'package:portox_app/app/modules/checklist/domain/usecases/save_ticket.dar
 import 'package:portox_app/app/modules/checklist/domain/usecases/validate_seal.dart';
 import 'package:portox_app/app/modules/checklist/domain/usecases/validate_supervisor_password.dart';
 import 'package:portox_app/app/modules/checklist/presentation/pages/checklist.dart';
+import 'package:portox_app/app/modules/checklist/presentation/pages/scan_code.dart';
 import 'package:portox_app/app/modules/checklist/presentation/pages/step_with_questions.dart';
 import 'package:portox_app/app/modules/checklist/presentation/pages/step_with_seals.dart';
-import 'package:portox_app/app/modules/checklist/presentation/pages/step_with_seals_history.dart';
 import 'package:portox_app/app/modules/checklist/presentation/pages/step_with_weighing.dart';
 import 'package:portox_app/app/modules/checklist/presentation/pages/step_without_questions.dart';
 import 'package:portox_app/app/modules/checklist/presentation/stores/checklist_store.dart';
@@ -98,7 +98,6 @@ class ChecklistModule extends Module {
             schedule: args.data,
             appStore: Modular.get(),
             store: Modular.get(),
-            storage: Modular.get(),
           ),
         ),
         ChildRoute(
@@ -170,14 +169,11 @@ class ChecklistModule extends Module {
           },
         ),
         ChildRoute(
-          '/step-with-seals-history',
-          child: (_, args) {
-            return StepWithSealsHistoryPage(
-              seals: args.data['seals'],
-              scheduleNumber: args.data['scheduleNumber'],
-              icon: args.data['icon'],
-            );
-          },
+          '/scan-code',
+          child: (_, args) => ScanCode(
+            permissions: Modular.get(),
+            recognizer: Modular.get(),
+          ),
         ),
       ];
 }

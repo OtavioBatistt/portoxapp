@@ -133,7 +133,7 @@ class _OxAutocompleteState extends State<OxAutocomplete> {
                 left: Ox.space.ref30,
               ),
               border: const OutlineInputBorder(),
-              labelText: widget.labelText.isNotEmpty
+              labelText: widget.labelText.isNotEmpty || widget.labelText == ''
                   ? widget.labelText
                   : intl(context, 'autocomplete.label'),
               suffixIcon: getSuffixIcon(),

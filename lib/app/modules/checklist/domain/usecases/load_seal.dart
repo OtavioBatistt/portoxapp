@@ -14,10 +14,4 @@ class LoadSealUseCase {
     final result = await _loadSealRepository.loadSeal(sealCode);
     return result.fold(left, right);
   }
-
-  Future<Either<Failure, List<String>>> loadAll(String scheduleNumber) async {
-    final result =
-        await _loadSealRepository.loadSealCodesByScheduleNumber(scheduleNumber);
-    return result.fold(left, right);
-  }
 }
