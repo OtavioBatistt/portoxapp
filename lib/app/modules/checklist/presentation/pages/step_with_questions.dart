@@ -248,13 +248,12 @@ class _StepWithQuestionsPageState extends State<StepWithQuestionsPage>
       } else if (question.validationType == 'NUMBER') {
         numberValue = int.tryParse(_answersList[index]);
       } else if (question.validationType.startsWith('LOV')) {
-        lovValue = widget.answers!
-            .firstWhere(
-              (answer) =>
-                  controller.getAnswerDescription(answer) ==
-                  _answersList[index],
-            )
-            .code;
+        final matchedAnswers = widget.answers!.where(
+          (answer) =>
+              controller.getAnswerDescription(answer) == _answersList[index],
+        );
+
+        lovValue = matchedAnswers.isNotEmpty ? matchedAnswers.first.code : null;
       }
       list.add(
         ChecklistAnswerEntity(
