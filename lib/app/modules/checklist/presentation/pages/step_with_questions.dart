@@ -254,6 +254,8 @@ class _StepWithQuestionsPageState extends State<StepWithQuestionsPage>
         );
 
         lovValue = matchedAnswers.isNotEmpty ? matchedAnswers.first.code : null;
+
+        textValue = lovValue == null ? _answersList[index].toString() : null;
       }
       list.add(
         ChecklistAnswerEntity(
