@@ -95,11 +95,15 @@ abstract class ChecklistStoreBase with Store {
   ) {
     final fields = _getFieldsByFlowCode(flowCode, balanceTag);
 
-    final isValidDocument = schedule.carrierDocValid == null
+    var isValidDocument = schedule.carrierDocValid == null
         ? ''
         : schedule.carrierDocValid!
             ? intl(context, 'schedule.doc-valid')
             : intl(context, 'schedule.doc-invalid');
+
+    if (isValidDocument.isEmpty && schedule.driverDoc.isNotEmpty) {
+      isValidDocument = schedule.driverDoc;
+    }
 
     final completeMap = {
       'window': schedule.formatWindowAndLocation(context),
