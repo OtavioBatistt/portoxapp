@@ -34,6 +34,7 @@ import 'package:portox_app/app/modules/checklist/presentation/pages/checklist.da
 import 'package:portox_app/app/modules/checklist/presentation/pages/step_with_questions.dart';
 import 'package:portox_app/app/modules/checklist/presentation/pages/step_with_seal_letter.dart';
 import 'package:portox_app/app/modules/checklist/presentation/pages/step_with_seals.dart';
+import 'package:portox_app/app/modules/checklist/presentation/pages/step_with_seals_history.dart';
 import 'package:portox_app/app/modules/checklist/presentation/pages/step_with_weighing.dart';
 import 'package:portox_app/app/modules/checklist/presentation/pages/step_without_questions.dart';
 import 'package:portox_app/app/modules/checklist/presentation/stores/checklist_store.dart';
@@ -98,6 +99,7 @@ class ChecklistModule extends Module {
             schedule: args.data,
             appStore: Modular.get(),
             store: Modular.get(),
+            storage: Modular.get(),
           ),
         ),
         ChildRoute(
@@ -181,6 +183,16 @@ class ChecklistModule extends Module {
               fields: params.fields,
               executedCompartments: params.executedCompartments,
               store: Modular.get(),
+              );
+          },
+        ),
+        ChildRoute(
+          '/step-with-seals-history',
+          child: (_, args) {
+            return StepWithSealsHistoryPage(
+              seals: args.data['seals'],
+              scheduleNumber: args.data['scheduleNumber'],
+              icon: args.data['icon'],
             );
           },
         ),

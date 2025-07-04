@@ -16,6 +16,7 @@ class OxChecklistItem extends StatelessWidget {
     this.buttonLabelActiveColor,
     this.buttonLabelInactiveColor,
     this.wasExecuted = false,
+    this.isScanSeal = false,
   });
 
   final String icon;
@@ -27,6 +28,7 @@ class OxChecklistItem extends StatelessWidget {
   final Color? buttonLabelInactiveColor;
   final bool wasExecuted;
   final void Function() onTap;
+  final bool isScanSeal;
 
   @override
   Widget build(BuildContext context) => SizedBox(
@@ -72,29 +74,72 @@ class OxChecklistItem extends StatelessWidget {
               ),
             ),
             SizedBox(width: Ox.space.ref40),
-            ElevatedButton(
-              key: const Key('clickable-checklist-item-area'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: wasExecuted
-                    ? buttonInactiveColor ?? Ox.colors.grayLight
-                    : buttonActiveColor ?? Ox.colors.blueLight,
-                fixedSize: Size.fromWidth(Ox.size.ref340.w),
-              ),
-              onPressed: wasExecuted ? null : onTap,
-              child: Text(
-                wasExecuted
-                    ? intl(context, 'checklist-item.inactive-button')
-                        .toUpperCase()
-                    : intl(context, 'checklist-item.active-button')
-                        .toUpperCase(),
-                style: TextStyle(
-                  color: wasExecuted
-                      ? buttonInactiveColor ?? Ox.colors.gray
-                      : buttonActiveColor ?? Ox.colors.white,
-                  fontSize: Ox.fontSizes.ref40,
+            if (isScanSeal)
+              ElevatedButton(
+                key: const Key('clickable-checklist-item-area'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: wasExecuted
+                      ? buttonInactiveColor ?? Ox.colors.grayLight
+                      : buttonActiveColor ?? Ox.colors.blueLight,
+                  fixedSize: Size.fromWidth(Ox.size.ref340.w),
                 ),
-              ),
-            )
+                onPressed: onTap,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      wasExecuted
+                          ? intl(context, 'checklist-item.add-button')
+                              .toUpperCase()
+                          : intl(context, 'checklist-item.active-button')
+                              .toUpperCase(),
+                      style: TextStyle(
+                        color: wasExecuted
+                            ? buttonInactiveColor ?? Ox.colors.gray
+                            : buttonActiveColor ?? Ox.colors.white,
+                        fontSize: Ox.fontSizes.ref40,
+                      ),
+                    ),
+                    if (wasExecuted)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 4),
+                        child: Text(
+                          '+',
+                          style: TextStyle(
+                            color: Ox.colors.blueLight,
+                            fontSize: Ox.fontSizes.ref50,
+                          ),
+                        ),
+                      )
+                    else
+                      const SizedBox(),
+                  ],
+                ),
+              )
+            else
+              ElevatedButton(
+                key: const Key('clickable-checklist-item-area'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: wasExecuted
+                      ? buttonInactiveColor ?? Ox.colors.grayLight
+                      : buttonActiveColor ?? Ox.colors.blueLight,
+                  fixedSize: Size.fromWidth(Ox.size.ref340.w),
+                ),
+                onPressed: wasExecuted ? null : onTap,
+                child: Text(
+                  wasExecuted
+                      ? intl(context, 'checklist-item.inactive-button')
+                          .toUpperCase()
+                      : intl(context, 'checklist-item.active-button')
+                          .toUpperCase(),
+                  style: TextStyle(
+                    color: wasExecuted
+                        ? buttonInactiveColor ?? Ox.colors.gray
+                        : buttonActiveColor ?? Ox.colors.white,
+                    fontSize: Ox.fontSizes.ref40,
+                  ),
+                ),
+              )
           ],
         ),
       );

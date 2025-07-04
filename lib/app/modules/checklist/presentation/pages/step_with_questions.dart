@@ -21,9 +21,11 @@ import 'package:portox_app/app/commons/widgets/confirmation.dart';
 import 'package:portox_app/app/commons/widgets/layout.dart';
 import 'package:portox_app/app/commons/widgets/radio_answer.dart';
 import 'package:portox_app/app/commons/widgets/signature.dart';
+import 'package:portox_app/app/modules/checklist/data/services/service_firebase_checklist.dart';
 import 'package:portox_app/app/modules/checklist/presentation/stores/step_store.dart';
 import 'package:portox_app/app/modules/checklist/presentation/widgets/action_button.dart';
 import 'package:portox_app/app/modules/checklist/presentation/widgets/checklist_header.dart';
+import 'package:portox_app/app/modules/checklist/presentation/widgets/checklist_timer_counter.dart';
 import 'package:portox_app/app/modules/schedule/domain/entities/line_entity.dart';
 import 'package:signature/signature.dart';
 
@@ -84,10 +86,16 @@ class _StepWithQuestionsPageState extends State<StepWithQuestionsPage>
   final FocusNode _focusNode = FocusNode();
 
   List<SignatureEntity>? _signaturesList;
+  int _totalElapsedTime = 0;
+
+  String flowTime = '';
+
+  final ServiceFirebaseChecklist _firebaseService = ServiceFirebaseChecklist();
 
   @override
   void initState() {
     super.initState();
+    _initializeFirebase();
     _isCompartmented =
         widget.flowStep.compartmented && widget.schedule.lines.length > 1;
     controller = widget.stepStore;
@@ -170,7 +178,13 @@ class _StepWithQuestionsPageState extends State<StepWithQuestionsPage>
         ? _signaturesList![_currentIndex - widget.questions.length].required
         : widget.questions[_currentIndex].required;
 
-    print(widget.store.name);
+    flowTime = widget.flowStep.flowTime;
+  }
+
+  void _updateElapsedTime(int elapsedTime) {
+    setState(() {
+      _totalElapsedTime = elapsedTime;
+    });
   }
 
   void handleChangeIndex(int index) {
@@ -219,6 +233,19 @@ class _StepWithQuestionsPageState extends State<StepWithQuestionsPage>
       });
     }
     _setTimeList(_currentIndex);
+  }
+
+  int convertToSeconds(String time) {
+    List<String> parts = time.split(':');
+    int hours = int.parse(parts[0]);
+    int minutes = int.parse(parts[1]);
+    int seconds = int.parse(parts[2]);
+
+    return (hours * 3600) + (minutes * 60) + seconds;
+  }
+
+  Future<void> _initializeFirebase() async {
+    await _firebaseService.initializeFirebase();
   }
 
   @override
@@ -291,14 +318,24 @@ class _StepWithQuestionsPageState extends State<StepWithQuestionsPage>
     return list;
   }
 
-  void handleChangeQuestion(int toIndexNumber) {
+  void handleChangeQuestion(int toIndexNumber) async {
     if (!(toIndexNumber >= _tabsLength)) {
       handleChangeIndex(toIndexNumber);
     } else {
       final answers = getAnswers();
       final signatures = getSignatures();
 
-      controller.onSubmitWithQuestions(
+      if (flowTime.isNotEmpty) {
+        await _firebaseService.persisteDataFlowTime(
+          user: widget.store.email,
+          schedule: widget.schedule.scheduleNumber,
+          flowCode: widget.flowStep.flowCode,
+          flowTime: widget.flowStep.flowTime,
+          elapsedTime: _totalElapsedTime,
+        );
+      }
+
+      await controller.onSubmitWithQuestions(
         accepted: true,
         flowCode: widget.flowStep.flowCode,
         schedule: widget.schedule,
@@ -613,6 +650,13 @@ class _StepWithQuestionsPageState extends State<StepWithQuestionsPage>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      if (flowTime.isNotEmpty)
+                        ChecklistTimerCounter(
+                          estimatedTime: convertToSeconds(flowTime),
+                          onTimeElapsed: _updateElapsedTime,
+                        )
+                      else
+                        const SizedBox(),
                       OxChecklistHeader(
                         icon: widget.icon,
                         flowDescription: widget.flowStep.flowDescription,

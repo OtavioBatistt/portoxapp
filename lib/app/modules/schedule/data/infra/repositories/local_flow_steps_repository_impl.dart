@@ -39,7 +39,8 @@ class LocalFlowStepsRepository
             ..compartmented = flowStep.compartmented
             ..signatures = flowStep.signatures
             ..questions = flowStep.questions
-            ..skippable = flowStep.skippable,
+            ..skippable = flowStep.skippable
+            ..flowTime = flowStep.flowTime,
         );
       }
 
@@ -73,6 +74,7 @@ class LocalFlowStepsRepository
           signatures: flowStep.signatures ?? false,
           questions: flowStep.questions ?? false,
           skippable: flowStep.skippable ?? false,
+          flowTime: flowStep.flowTime ?? '',
         ));
       }
       return right(list);

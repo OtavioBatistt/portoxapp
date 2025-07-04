@@ -33,4 +33,5 @@ abstract class ILocalStorageAdapter {
   Future<bool> loadChecklistSeal(String sealCode);
   Future<void> saveDriverPhone(IsarScheduleDriverPhoneEntity params);
   Future<IsarScheduleDriverPhoneEntity?> loadDriverPhone(String scheduleNumber);
+  Future<List<String>> loadSealCodesByScheduleNumber(String scheduleNumber);
 }

@@ -58,13 +58,12 @@ class _StepWithSealsPageState extends State<StepWithSealsPage>
   bool showScanner = false;
   bool _isCompartmented = false;
   LineEntity? selectedCompartment;
+  List<String> registeredSeals = [];
 
   late TextEditingController _manualSealController;
   late TabController _tabController;
 
   final FocusNode _focusNode = FocusNode();
-
-  var _connectionStatus = 'Unknown';
 
   @override
   void initState() {
@@ -86,12 +85,7 @@ class _StepWithSealsPageState extends State<StepWithSealsPage>
       });
     });
 
-    // Conectividade necessária para validação de lacres offline
-    Connectivity().onConnectivityChanged.listen((result) {
-      setState(() {
-        _connectionStatus = result.toString();
-      });
-    });
+    checkRegisteredSeals();
   }
 
   @override
@@ -99,6 +93,7 @@ class _StepWithSealsPageState extends State<StepWithSealsPage>
     _manualSealController.dispose();
     _tabController.dispose();
     _focusNode.dispose();
+    registeredSeals.clear();
     super.dispose();
   }
 
@@ -116,6 +111,16 @@ class _StepWithSealsPageState extends State<StepWithSealsPage>
     }
 
     _focusNode.unfocus();
+  }
+
+  void checkRegisteredSeals() async {
+    var result =
+        await widget.store.loadSeal.loadAll(widget.schedule.scheduleNumber);
+    await result.fold((l) => null, (r) async {
+      setState(() {
+        registeredSeals = r ?? [];
+      });
+    });
   }
 
   bool checkIfWasExecuted(LineEntity line) =>
@@ -594,12 +599,40 @@ class _StepWithSealsPageState extends State<StepWithSealsPage>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    OxChecklistHeader(
-                      icon: widget.icon,
-                      flowDescription: widget.flowStep.flowDescription,
-                      step: widget.step,
-                      scheduleNumber: widget.schedule.scheduleNumber,
-                    ),
+                    registeredSeals.isNotEmpty
+                        ? OxChecklistHeader(
+                            icon: widget.icon,
+                            flowDescription: widget.flowStep.flowDescription,
+                            step: widget.step,
+                            scheduleNumber: widget.schedule.scheduleNumber,
+                            hasFunction: true,
+                            functionIcon: GestureDetector(
+                              onTap: () async {
+                                if (registeredSeals.isNotEmpty) {
+                                  Modular.to.pushNamed(
+                                    '/checklist/step-with-seals-history',
+                                    arguments: {
+                                      'seals': registeredSeals,
+                                      'scheduleNumber':
+                                          widget.schedule.scheduleNumber,
+                                      'icon': widget.icon,
+                                    },
+                                  );
+                                }
+                              },
+                              child: Icon(
+                                Icons.timer_outlined,
+                                color: Ox.colors.blue,
+                                size: 28,
+                              ),
+                            ),
+                          )
+                        : OxChecklistHeader(
+                            icon: widget.icon,
+                            flowDescription: widget.flowStep.flowDescription,
+                            step: widget.step,
+                            scheduleNumber: widget.schedule.scheduleNumber,
+                          ),
                     Expanded(
                       child: TabBarView(
                         controller: _tabController,

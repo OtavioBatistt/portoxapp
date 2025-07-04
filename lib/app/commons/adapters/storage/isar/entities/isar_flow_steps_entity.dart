@@ -22,4 +22,5 @@ class IsarFlowStepsEntity {
   bool? signatures;
   bool? questions;
   bool? skippable;
+  String? flowTime;
 }

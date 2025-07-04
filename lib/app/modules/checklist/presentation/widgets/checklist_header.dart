@@ -9,12 +9,16 @@ class OxChecklistHeader extends StatelessWidget {
     this.step,
     required this.flowDescription,
     required this.scheduleNumber,
+    this.functionIcon,
+    this.hasFunction = false,
   });
 
   final String icon;
   final String? step;
   final String flowDescription;
   final String scheduleNumber;
+  final Widget? functionIcon;
+  final bool hasFunction;
 
   @override
   Widget build(BuildContext context) {
@@ -61,14 +65,32 @@ class OxChecklistHeader extends StatelessWidget {
           ],
         ),
         SizedBox(height: Ox.space.ref40),
-        Text(
-          scheduleNumber.toUpperCase(),
-          style: TextStyle(
-            color: Ox.colors.blue,
-            fontSize: Ox.fontSizes.ref60,
-            fontWeight: Ox.fontWeights.regular,
-          ),
-        ),
+        hasFunction
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    scheduleNumber.toUpperCase(),
+                    style: TextStyle(
+                      color: Ox.colors.blue,
+                      fontSize: Ox.fontSizes.ref60,
+                      fontWeight: Ox.fontWeights.regular,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: functionIcon ?? const SizedBox(),
+                  )
+                ],
+              )
+            : Text(
+                scheduleNumber.toUpperCase(),
+                style: TextStyle(
+                  color: Ox.colors.blue,
+                  fontSize: Ox.fontSizes.ref60,
+                  fontWeight: Ox.fontWeights.regular,
+                ),
+              ),
         SizedBox(height: Ox.space.ref20),
         Divider(
           color: Ox.colors.grayLight,

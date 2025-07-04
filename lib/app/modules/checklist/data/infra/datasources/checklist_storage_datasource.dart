@@ -19,4 +19,7 @@ abstract class ISaveChecklistSealDataSource {
 
 abstract class ILoadChecklistSealDataSource {
   Future<bool> loadChecklistSeal(String sealCode);
+  Future<List<String>> loadSealCodesByScheduleNumber(
+    String scheduleNumber,
+  );
 }
