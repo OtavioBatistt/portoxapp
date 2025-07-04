@@ -61,15 +61,4 @@ class StorageChecklistDataSource
       throw CommonDataSourceError(message: 'Unexpected error');
     }
   }
-
-  @override
-  Future<List<String>> loadSealCodesByScheduleNumber(
-    String scheduleNumber,
-  ) async {
-    try {
-      return await _storage.loadSealCodesByScheduleNumber(scheduleNumber);
-    } on Exception {
-      throw CommonDataSourceError(message: 'Unexpected error');
-    }
-  }
 }

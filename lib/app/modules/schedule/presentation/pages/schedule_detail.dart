@@ -14,7 +14,6 @@ import 'package:portox_app/app/commons/widgets/confirmation.dart';
 import 'package:portox_app/app/commons/widgets/flushbar.dart';
 import 'package:portox_app/app/commons/widgets/layout.dart';
 import 'package:portox_app/app/modules/checklist/presentation/widgets/action_button.dart';
-import 'package:portox_app/app/modules/communication/data/services/service_firebase_source.dart';
 import 'package:portox_app/app/modules/occurrence/domain/entities/new_occurrence_params_entity.dart';
 import 'package:portox_app/app/modules/schedule/data/external/storage/local_storage_master_datasource.dart';
 import 'package:portox_app/app/modules/schedule/presentation/widgets/data_text_field.dart';
@@ -43,8 +42,6 @@ class _ScheduleDetailPageState extends State<ScheduleDetailPage> {
 
   IsarScheduleDriverPhoneEntity? _scheduleDriverPhone = null;
 
-  final ServiceFirebaseSource _firebaseService = ServiceFirebaseSource();
-
   final _maskFormatterPhone = MaskTextInputFormatter(
       mask: '(##) #####-####',
       filter: {"#": RegExp(r'[0-9]')},
@@ -60,33 +57,13 @@ class _ScheduleDetailPageState extends State<ScheduleDetailPage> {
         _phoneController.text = _scheduleDriverPhone!.driverPhone!;
       });
     } else {
-      var driverPhone = await _firebaseService.getDriverPhone(
-          driverName: widget.schedule.driverName,
-          driverLicense: widget.schedule.driverDoc);
-
-      if (driverPhone != null) {
-        if (driverPhone.isNotEmpty) {
-          setState(() {
-            _hasDriverPhone = true;
-            _phoneController.text = driverPhone;
-          });
-        } else {
-          return;
-        }
-      } else {
-        return;
-      }
+      return;
     }
-  }
-
-  Future<void> _initializeFirebase() async {
-    await _firebaseService.initializeFirebase();
   }
 
   @override
   void initState() {
     super.initState();
-    _initializeFirebase();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (widget.schedule.operationType.startsWith('D')) {
         setState(() {
@@ -239,10 +216,11 @@ class _ScheduleDetailPageState extends State<ScheduleDetailPage> {
                         ),
                         SizedBox(height: Ox.space.ref40.h),
                         OxDataTextField(
-                          title: intl(context, 'schedule.status-field'),
-                          value:
-                              intl(context, 'schedule.status-confirmed-field')
-                                  .toUpperCase(),
+                          title: intl(context, 'schedule.seal-letter-text'),
+                          value: widget.schedule.sealLetter
+                              ? intl(context, 'schedule.seal-letter-field-true')
+                              : intl(
+                                  context, 'schedule.seal-letter-field-false'),
                         ),
                         SizedBox(height: Ox.space.ref40.h),
                         OxDataTextField(
@@ -259,6 +237,13 @@ class _ScheduleDetailPageState extends State<ScheduleDetailPage> {
                         OxDataTextField(
                           title: intl(context, 'schedule.truck-plate-field'),
                           value: widget.schedule.truckPlate,
+                        ),
+                        SizedBox(height: Ox.space.ref40.h),
+                        OxDataTextField(
+                          title: intl(context, 'schedule.status-field'),
+                          value:
+                              intl(context, 'schedule.status-confirmed-field')
+                                  .toUpperCase(),
                         ),
                         SizedBox(height: Ox.space.ref40.h),
                         OxDataTextField(
@@ -338,21 +323,10 @@ class _ScheduleDetailPageState extends State<ScheduleDetailPage> {
                                                 widget.schedule.scheduleNumber
                                             ..messageCount = 0,
                                         );
-                                        await _firebaseService
-                                            .saveOrUpdateDriverInfo(
-                                                driverName:
-                                                    widget.schedule.driverName,
-                                                driverLicense:
-                                                    widget.schedule.driverDoc,
-                                                phone: _phoneController.text);
-
                                         setState(() {
                                           _driverPhoneSaved = true;
                                         });
-
-                                        // ignore: use_build_context_synchronously
                                         await showSuccessFlushbar(
-                                                // ignore: use_build_context_synchronously
                                                 message: intl(context,
                                                     'sms-page.valid-phone'))
                                             .show(context);
@@ -379,7 +353,7 @@ class _ScheduleDetailPageState extends State<ScheduleDetailPage> {
                                   _phoneFocusNode.unfocus();
                                   await loadDriverPhoneNumber();
                                   if (_phoneController.text.length == 15) {
-                                    await Modular.to.pushNamed(
+                                    Modular.to.pushNamed(
                                       '/schedule/communication',
                                       arguments: {
                                         'phone': _phoneController.text,

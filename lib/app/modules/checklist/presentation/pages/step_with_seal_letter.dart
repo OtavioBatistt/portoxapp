@@ -22,8 +22,8 @@ import 'package:portox_app/app/modules/checklist/presentation/widgets/checklist_
 import 'package:portox_app/app/modules/checklist/presentation/widgets/checklist_seals.dart';
 import 'package:portox_app/app/modules/schedule/domain/entities/line_entity.dart';
 
-class StepWithSealsPage extends StatefulWidget {
-  const StepWithSealsPage({
+class StepWithSealLetterPage extends StatefulWidget {
+  const StepWithSealLetterPage({
     required this.icon,
     required this.schedule,
     required this.flowStep,
@@ -45,13 +45,13 @@ class StepWithSealsPage extends StatefulWidget {
   final StepStore store;
 
   @override
-  State<StepWithSealsPage> createState() => _StepWithSealsPageState();
+  State<StepWithSealLetterPage> createState() => _StepWithSealLetterPageState();
 }
 
-class _StepWithSealsPageState extends State<StepWithSealsPage>
+class _StepWithSealLetterPageState extends State<StepWithSealLetterPage>
     with SingleTickerProviderStateMixin {
   late StepStore controller;
-  final int _tabsLength = 4;
+  final int _tabsLength = 3;
   bool _isLastQuestion = false;
   final List<ChecklistSealEntity> _seals = [];
   final List<ChecklistSealEntity> _manualSeals = [];
@@ -317,7 +317,7 @@ class _StepWithSealsPageState extends State<StepWithSealsPage>
       ],
     );
 
-    Widget getThirdStep({required bool isValidating}) => Column(
+    Widget getSecondStep({required bool isValidating}) => Column(
           children: [
             SizedBox(
               height: Ox.size.ref200.h,
@@ -410,6 +410,42 @@ class _StepWithSealsPageState extends State<StepWithSealsPage>
             ),
             SizedBox(height: Ox.space.ref40),
             Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      elevation: 1,
+                      backgroundColor: Ox.colors.green,
+                      padding: EdgeInsets.all(Ox.size.ref20),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        showScanner = true;
+                      });
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        OxAsset(Ox.assets.iconCamera),
+                        SizedBox(width: Ox.space.ref20),
+                        Text(
+                          intl(context,
+                                  'step-with-seals-page.scan-seals-button')
+                              .toUpperCase(),
+                          style: TextStyle(
+                            color: Ox.colors.blue,
+                            fontWeight: Ox.fontWeights.medium,
+                            fontSize: Ox.fontSizes.ref50,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: Ox.space.ref40),
+            Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -419,10 +455,7 @@ class _StepWithSealsPageState extends State<StepWithSealsPage>
                   text: intl(context, 'app.back'),
                   color: Ox.colors.blue,
                   onPressed: () {
-                    setState(() {
-                      showScanner = true;
-                    });
-                    handleChangeQuestion(1);
+                    handleChangeQuestion(0);
                     _manualSealController.clear();
                   },
                 ),
@@ -431,7 +464,7 @@ class _StepWithSealsPageState extends State<StepWithSealsPage>
                     _seals.addAll(_manualSeals);
                     _manualSeals.clear();
                     _manualSealController.clear();
-                    handleChangeQuestion(1);
+                    handleChangeQuestion(2);
                   },
                   backgroundColor: Ox.colors.green,
                   text: intl(
@@ -446,7 +479,7 @@ class _StepWithSealsPageState extends State<StepWithSealsPage>
           ],
         );
 
-    final fourthStep = Column(
+    final thirdStep = Column(
       children: [
         SizedBox(
           width: double.infinity,
@@ -527,9 +560,10 @@ class _StepWithSealsPageState extends State<StepWithSealsPage>
                     ).show(context);
                   } else {
                     setState(() {
-                      _seals.add(seal);
+                      _manualSeals.add(seal);
                       showScanner = false;
                     });
+                    _manualSealController.clear();
                   }
                 },
                 onBackPress: () => setState(() => showScanner = false),
@@ -550,7 +584,7 @@ class _StepWithSealsPageState extends State<StepWithSealsPage>
                     ),
                     onPressed: () {
                       controller.setStatus(StepStatus.initial);
-                      handleChangeQuestion(2);
+                      handleChangeQuestion(1);
                       setState(() {
                         showScanner = false;
                       });
@@ -606,12 +640,11 @@ class _StepWithSealsPageState extends State<StepWithSealsPage>
                         physics: const NeverScrollableScrollPhysics(),
                         children: [
                           firstStep,
-                          secondStep,
-                          getThirdStep(
+                          getSecondStep(
                             isValidating:
                                 controller.status == StepStatus.yesLoading,
                           ),
-                          fourthStep
+                          thirdStep
                         ],
                       ),
                     ),

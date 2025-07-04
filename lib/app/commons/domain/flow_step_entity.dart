@@ -21,7 +21,6 @@ class FlowStepEntity {
     this.questions = false,
     this.weighing = false,
     this.skippable = false,
-    this.flowTime = '',
   });
 
   final String id;
@@ -43,7 +42,6 @@ class FlowStepEntity {
   final bool questions;
   final bool weighing;
   final bool skippable;
-  final String flowTime;
 
   static FlowStepEntity? fromMap(Map<String, dynamic>? map) {
     if (map == null) {
@@ -69,7 +67,6 @@ class FlowStepEntity {
       questions: map['questions'],
       iconName: map['icon_name'],
       skippable: map['skippable'] ?? false,
-      flowTime: map['flow_time'] ?? '',
     );
   }
 

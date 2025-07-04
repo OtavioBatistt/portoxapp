@@ -3,7 +3,7 @@ import 'package:portox_app/app/commons/adapters/localizations/translate_app.dart
 import 'package:portox_app/app/modules/schedule/domain/entities/line_entity.dart';
 
 class ScheduleEntity {
-  const ScheduleEntity({
+  ScheduleEntity({
     required this.window,
     required this.lines,
     this.id = '',
@@ -37,6 +37,7 @@ class ScheduleEntity {
     this.loadType = '',
     this.balanceTag = false,
     this.showEnabled = false,
+    this.sealLetter = false,
   });
   final String id;
   final String scheduleNumber;
@@ -71,6 +72,7 @@ class ScheduleEntity {
   final String operation;
   final String loadType;
   final bool showEnabled;
+  final bool sealLetter;
 
   static Future<ScheduleEntity?> fromFirebaseMap(
       String id, Map<String, dynamic>? map) async {
@@ -112,6 +114,7 @@ class ScheduleEntity {
       loadType: map['loadType'] ?? '',
       balanceTag: map['balanceTag'] ?? false,
       showEnabled: map['showEnabled'] ?? false,
+      sealLetter: map['sealLetter'] ?? false,
     );
   }
 
