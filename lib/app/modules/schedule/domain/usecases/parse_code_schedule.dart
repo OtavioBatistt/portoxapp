@@ -13,7 +13,8 @@ class ParseCodeScheduleUseCase {
       if (code.length < 14) return left(InvalidParams());
 
       final lines = <LineEntity>[];
-      String driverName = '';
+      var driverName = '';
+      var sealLetter = false;
 
       // A partir do index 14 são linhas OU nome do motorista
       for (var i = 14; i < code.length; i++) {
@@ -33,8 +34,14 @@ class ParseCodeScheduleUseCase {
               warehouse: line.length > 7 ? line[7] : '',
             ),
           );
-        } else if (code[i].isNotEmpty) {
-          driverName = code[i]; // qualquer coisa que não tenha * é o nome
+        } else if (code[i].isNotEmpty && i == 15) {
+          driverName = code[
+              i]; // qualquer coisa que não tenha * e a posição é 15 então é o nome
+        }
+
+        if (i == 16 && code[i].isNotEmpty) {
+          sealLetter = code[i] ==
+              '1'; // na posição 16 temos o indicativo se existe Carta Lacre ou não
         }
       }
 
@@ -56,6 +63,7 @@ class ParseCodeScheduleUseCase {
           capacityWeight: int.parse(code[13]),
           lines: lines,
           driverName: driverName,
+          sealLetter: sealLetter,
         ),
       );
     } on Exception {
