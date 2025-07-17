@@ -43,7 +43,7 @@ class ChecklistModule extends Module {
   @override
   List<Bind> get binds => [
         Bind.lazySingleton(
-          (i) => ChecklistStore(i(), i(), i(), i(), i(), i(), i()),
+          (i) => ChecklistStore(i(), i(), i(), i(), i(), i(), i(), i()),
         ),
         Bind.lazySingleton(
           (i) => StepStore(i(), i(), i(), i(), i(), i(), i(), i(), i(), i()),

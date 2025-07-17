@@ -22,6 +22,7 @@ import 'package:portox_app/app/modules/checklist/domain/entities/step_with_weigh
 import 'package:portox_app/app/modules/checklist/domain/entities/step_without_question_params_entity.dart';
 import 'package:portox_app/app/modules/checklist/presentation/stores/checklist_store.dart';
 import 'package:portox_app/app/modules/checklist/presentation/widgets/checklist_confirmation.dart';
+import 'package:portox_app/app/modules/communication/data/services/service_firebase_source.dart';
 import 'package:portox_app/app/modules/occurrence/domain/entities/new_occurrence_params_entity.dart';
 import 'package:portox_app/app/modules/schedule/data/external/storage/local_storage_master_datasource.dart';
 import 'package:portox_app/app/modules/schedule/presentation/widgets/checklist_item.dart';
@@ -57,6 +58,8 @@ class _ChecklistPageState extends State<ChecklistPage> {
   IsarScheduleDriverPhoneEntity? _scheduleDriverPhone = null;
   TextEditingController _phoneController = TextEditingController();
   bool _hasDriverPhone = false;
+  final ServiceFirebaseSource _firebaseService = ServiceFirebaseSource();
+  List<bool> wasExecutedList = [];
 
   @override
   void initState() {
@@ -92,6 +95,12 @@ class _ChecklistPageState extends State<ChecklistPage> {
     super.dispose();
   }
 
+  Future<void> loadWasExecutedList() async {
+    wasExecutedList = await Future.wait(
+      controller.steps.map((item) => checkWasExecuted(item)),
+    );
+  }
+
   Future<void> loadDriverPhoneNumber() async {
     var phoneNumber =
         await widget.storage.loadDriverPhone(widget.schedule.scheduleNumber);
@@ -106,7 +115,15 @@ class _ChecklistPageState extends State<ChecklistPage> {
     }
   }
 
-  bool checkWasExecuted(FlowStepEntity flowStep) {
+  Future<bool> checkWasExecuted(FlowStepEntity flowStep) async {
+    var wasExecuted = await _firebaseService.existsFlowStepStatus(
+        flowCode: flowStep.flowCode,
+        scheduleNumber: widget.schedule.scheduleNumber);
+
+    if (wasExecuted) {
+      return wasExecuted;
+    }
+
     if (flowStep.flowCode == 'AWAITTING_SCAN_SEAL') {
       return controller.executedSteps
           .any((executed) => executed.flowCode == flowStep.flowCode);
@@ -266,18 +283,28 @@ class _ChecklistPageState extends State<ChecklistPage> {
         return Center(child: CircularProgressIndicator(color: Ox.colors.blue));
       }
 
-      return ListView.builder(
-        padding: const EdgeInsets.all(1),
-        itemCount: controller.steps.length,
-        itemBuilder: (context, index) {
-          final item = controller.steps[index];
-          return OxChecklistItem(
-            icon: item.getIcon(),
-            label: item.getLabel(),
-            step: item.getStep(),
-            onTap: () => handleConfirmation(item),
-            wasExecuted: checkWasExecuted(item),
-            isScanSeal: item.flowCode == 'AWAITTING_SCAN_SEAL',
+      return FutureBuilder(
+        future: loadWasExecutedList(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return Center(
+                child: CircularProgressIndicator(color: Ox.colors.blue));
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(1),
+            itemCount: controller.steps.length,
+            itemBuilder: (context, index) {
+              final item = controller.steps[index];
+              return OxChecklistItem(
+                icon: item.getIcon(),
+                label: item.getLabel(),
+                step: item.getStep(),
+                onTap: () => handleConfirmation(item),
+                wasExecuted: wasExecutedList[index],
+                isScanSeal: item.flowCode == 'AWAITTING_SCAN_SEAL',
+              );
+            },
           );
         },
       );
