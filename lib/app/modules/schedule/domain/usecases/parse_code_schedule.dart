@@ -15,6 +15,7 @@ class ParseCodeScheduleUseCase {
       final lines = <LineEntity>[];
       var driverName = '';
       var sealLetter = false;
+      var tagGuardian = false;
 
       // A partir do index 14 são linhas OU nome do motorista
       for (var i = 14; i < code.length; i++) {
@@ -43,6 +44,11 @@ class ParseCodeScheduleUseCase {
           sealLetter = code[i] ==
               '1'; // na posição 16 temos o indicativo se existe Carta Lacre ou não
         }
+
+        if (i == 17 && code[i].isNotEmpty) {
+          tagGuardian = code[i] ==
+              '1'; // na posição 17 temos o indicativo se existe Tag Guardian ou não
+        }
       }
 
       return right(
@@ -64,6 +70,7 @@ class ParseCodeScheduleUseCase {
           lines: lines,
           driverName: driverName,
           sealLetter: sealLetter,
+          balanceTag: tagGuardian,
         ),
       );
     } on Exception {
