@@ -185,5 +185,6 @@
   "sms-page.opt-1":" Go to Billing to collect documents.",
   "sms-page.opt-2":" Go to the Concierge.",
   "sms-page.opt-3":"Edit",
-  "sms-page.send-limit":"You have reached the limit of 3 submissions."
+  "sms-page.send-limit":"You have reached the limit of 3 submissions.",
+  "sms-page.tracking-link":"Tracking link"
 }

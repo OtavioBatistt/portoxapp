@@ -185,5 +185,6 @@
   "sms-page.opt-1":" Compareça ao Faturamento para retirar documentos.",
   "sms-page.opt-2":" Compareça a Portaria.",
   "sms-page.opt-3":"Editar",
-  "sms-page.send-limit":"Você atingiu o limite de 3 envios."
+  "sms-page.send-limit":"Você atingiu o limite de 3 envios.",
+  "sms-page.tracking-link":"Rastreamento"
 }

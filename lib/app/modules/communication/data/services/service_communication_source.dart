@@ -4,17 +4,24 @@ import 'package:http/http.dart' as http;
 
 class ServiceCommunicationSource {
   final String apiUrl;
+  final String trackingLink;
 
   ServiceCommunicationSource()
       : apiUrl = const String.fromEnvironment('API_SMS',
             defaultValue:
-                'https://send-message-dev.oxiteno.com/sendingportox-sms');
+                'https://send-message-dev.oxiteno.com/sendingportox-sms'),
+        trackingLink = const String.fromEnvironment('TRACKING_LINK');
 
-  Future<bool> sendSMS(String smsTo, String mensagem) async {
+  Future<bool> sendSMS(
+    String smsTo,
+    String mensagem,
+    String trackingLabel,
+  ) async {
     try {
+      final finalMessage = '$mensagem $trackingLabel: $trackingLink';
       final bodyRequest = <String, String>{
         'smsTo': smsTo,
-        'mensagem': mensagem,
+        'mensagem': finalMessage,
       };
 
       final resposta = await http.post(

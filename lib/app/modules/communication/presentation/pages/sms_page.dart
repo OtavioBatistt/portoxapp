@@ -148,7 +148,11 @@ class _SmsPageState extends State<SmsPage> {
           .replaceAll(' ', '')
           .replaceAll('-', '');
 
-      var result = await _sender.sendSMS('55$phoneNumber', message);
+      var result = await _sender.sendSMS(
+        '55$phoneNumber',
+        message,
+        intl(context, 'sms-page.tracking-link'),
+      );
 
       if (result) {
         await _firebaseService.persisteDataMessage(

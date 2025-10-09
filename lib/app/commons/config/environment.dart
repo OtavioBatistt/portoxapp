@@ -21,4 +21,6 @@ class Environment {
       const String.fromEnvironment('FIREBASE_ANDROID_API_KEY');
   static String get androidAppId =>
       const String.fromEnvironment('FIREBASE_ANDROID_APP_ID');
+  static String get trackingLink =>
+      const String.fromEnvironment('TRACKING_LINK');
 }
