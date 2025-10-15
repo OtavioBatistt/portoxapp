@@ -185,5 +185,9 @@
   "sms-page.opt-1":" Compareça ao Faturamento para retirar documentos.",
   "sms-page.opt-2":" Compareça a Portaria.",
   "sms-page.opt-3":"Editar",
-  "sms-page.send-limit":"Você atingiu o limite de 3 envios."
+  "sms-page.send-limit":"Você atingiu o limite de 3 envios.",
+  "checklist.driver-checkout-title": "Sr. MOTORISTA, Confirma o Tempo de Permanência na Unidade?",
+  "checklist.driver-checkout-check-in-label": "Entrada",
+  "checklist.driver-checkout-check-out-label": "Saída",
+  "checklist.driver-checkout-total-label": "Tempo"
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 import 'package:portox_app/app/commons/adapters/localizations/translate_app.dart';
 import 'package:portox_app/app/commons/domain/flow_step_entity.dart';
 import 'package:portox_app/app/commons/domain/schedule_entity.dart';
@@ -12,6 +13,7 @@ import 'package:portox_app/app/commons/widgets/app_bar.dart';
 import 'package:portox_app/app/commons/widgets/camera.dart';
 import 'package:portox_app/app/commons/widgets/flushbar.dart';
 import 'package:portox_app/app/commons/widgets/layout.dart';
+import 'package:portox_app/app/modules/checklist/data/external/api/api_driver_checkout_datasource.dart';
 import 'package:portox_app/app/modules/checklist/presentation/stores/step_store.dart';
 import 'package:portox_app/app/modules/checklist/presentation/widgets/action_button.dart';
 import 'package:portox_app/app/modules/checklist/presentation/widgets/checklist_fields.dart';
@@ -27,6 +29,7 @@ class StepWithoutQuestionsPage extends StatefulWidget {
     required this.fields,
     required this.store,
     required this.hasTag,
+    required this.hasDriverCheckout,
     super.key,
     this.step,
     this.executedCompartments = const [],
@@ -41,6 +44,7 @@ class StepWithoutQuestionsPage extends StatefulWidget {
   final bool hasTag;
   final StepStore store;
   final List<int>? executedCompartments;
+  final bool hasDriverCheckout;
 
   @override
   State<StepWithoutQuestionsPage> createState() =>
@@ -52,6 +56,10 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
   bool showScanner = false;
   bool _isCompartmented = false;
   LineEntity? selectedCompartment;
+  late ApiDriverCheckoutDataSource _driverCheckoutDataSource;
+  String? checkinDate = '';
+  String? checkoutDate = '';
+  String? totalDate = '';
 
   @override
   void initState() {
@@ -60,6 +68,75 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
     controller.setFields(widget.fields);
     _isCompartmented =
         widget.flowStep.compartmented && widget.schedule.lines.length > 1;
+
+    _driverCheckoutDataSource = Modular.get<ApiDriverCheckoutDataSource>();
+
+    if (widget.hasDriverCheckout) {
+      _loadDriverCheckoutData();
+    }
+  }
+
+  Future<void> _loadDriverCheckoutData() async {
+    try {
+      final result = await _driverCheckoutDataSource.getDriverCheckout(
+        scheduleNumber: widget.schedule.scheduleNumber,
+      );
+
+      final entryDate = result['entryDate'];
+      final exitDate = result['exitDate'];
+
+      setState(() {
+        checkinDate = formatIsoDateToBrazilian(entryDate);
+        checkoutDate = formatIsoDateToBrazilian(exitDate);
+        totalDate = calculateTotalTime(entryDate, exitDate);
+      });
+    } catch (e) {
+      debugPrint('Erro ao obter dados do checkout do motorista: $e');
+    }
+  }
+
+  String formatIsoDateToBrazilian(String? isoDate) {
+    try {
+      if (isoDate == null) {
+        return '-';
+      }
+      final dateTime = DateTime.parse(isoDate).toLocal();
+      final formatted = DateFormat('dd/MM/yyyy HH:mm').format(dateTime);
+      return formatted;
+    } catch (_) {
+      return '-';
+    }
+  }
+
+  String calculateTotalTime(String? entryIso, String? exitIso) {
+    try {
+      if (entryIso == null || exitIso == null) {
+        return '-';
+      }
+
+      final entry = DateTime.parse(entryIso).toLocal();
+      final exit = DateTime.parse(exitIso).toLocal();
+
+      final duration = exit.difference(entry);
+
+      if (duration.isNegative) return '-';
+
+      final totalMinutes = duration.inMinutes;
+      final days = totalMinutes ~/ (24 * 60);
+      final hours = (totalMinutes % (24 * 60)) ~/ 60;
+      final minutes = totalMinutes % 60;
+
+      final hoursStr = hours.toString().padLeft(2, '0');
+      final minutesStr = minutes.toString().padLeft(2, '0');
+
+      if (days > 0) {
+        return '${days}D $hoursStr:$minutesStr';
+      } else {
+        return '$hoursStr:$minutesStr';
+      }
+    } catch (_) {
+      return '-';
+    }
   }
 
   @override
@@ -138,99 +215,240 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
                     horizontal: Ox.space.ref40.w,
                     vertical: Ox.space.ref50.h,
                   ),
-                  child: Column(
-                    children: [
-                      OxChecklistHeader(
-                        icon: widget.icon,
-                        flowDescription: widget.flowStep.getLabel(),
-                        step: widget.step,
-                        scheduleNumber: widget.schedule.scheduleNumber,
-                      ),
-                      OxChecklistFields(
-                        fields: controller.fields,
-                        hasTag: widget.hasTag,
-                        onTapTag: () {
-                          setState(() {
-                            showScanner = true;
-                          });
-                        },
-                        compartments: handleCompartmentOptions(),
-                        onTapCompartment: _isCompartmented
-                            ? (value) {
-                                setState(
-                                  () => selectedCompartment =
-                                      parseLineOption(value),
-                                );
-                              }
-                            : null,
-                      ),
-                      if (widget.schedule.balanceTag) Container(),
-                      SizedBox(height: Ox.space.ref40),
-                      Divider(
-                        color: Ox.colors.grayLight,
-                        height: 1,
-                      ),
-                      SizedBox(height: Ox.space.ref40),
-                      SizedBox(
-                        width: double.infinity,
-                        child: Text(
-                          widget.confirmationLabel,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Ox.colors.blue,
-                            fontSize: Ox.fontSizes.ref40,
-                            fontWeight: Ox.fontWeights.bold,
-                          ),
+                  child: !widget.hasDriverCheckout
+                      ? Column(
+                          children: [
+                            OxChecklistHeader(
+                              icon: widget.icon,
+                              flowDescription: widget.flowStep.getLabel(),
+                              step: widget.step,
+                              scheduleNumber: widget.schedule.scheduleNumber,
+                            ),
+                            OxChecklistFields(
+                              fields: controller.fields,
+                              hasTag: widget.hasTag,
+                              onTapTag: () {
+                                setState(() {
+                                  showScanner = true;
+                                });
+                              },
+                              compartments: handleCompartmentOptions(),
+                              onTapCompartment: _isCompartmented
+                                  ? (value) {
+                                      setState(
+                                        () => selectedCompartment =
+                                            parseLineOption(value),
+                                      );
+                                    }
+                                  : null,
+                            ),
+                            if (widget.schedule.balanceTag) Container(),
+                            SizedBox(height: Ox.space.ref40),
+                            Divider(
+                              color: Ox.colors.grayLight,
+                              height: 1,
+                            ),
+                            SizedBox(height: Ox.space.ref40),
+                            SizedBox(
+                              width: double.infinity,
+                              child: Text(
+                                widget.confirmationLabel,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Ox.colors.blue,
+                                  fontSize: Ox.fontSizes.ref40,
+                                  fontWeight: Ox.fontWeights.bold,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: Ox.space.ref40),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                OxActionButton(
+                                  color: Ox.colors.white,
+                                  backgroundColor: Ox.colors.error,
+                                  isLoading:
+                                      controller.status == StepStatus.noLoading,
+                                  onPressed: !_isCompartmented ||
+                                          selectedCompartment != null
+                                      ? () => controller.onSubmitConfirmation(
+                                            accepted: false,
+                                            flowCode: widget.flowStep.flowCode,
+                                            schedule: widget.schedule,
+                                            hasTag: false,
+                                            compartment: selectedCompartment
+                                                ?.compartment,
+                                          )
+                                      : null,
+                                  prefixIcon: Icons.thumb_down,
+                                  text: intl(context, 'app.no'),
+                                ),
+                                OxActionButton(
+                                  color: Ox.colors.black,
+                                  backgroundColor: Ox.colors.green,
+                                  isLoading: controller.status ==
+                                      StepStatus.yesLoading,
+                                  onPressed: (!widget.hasTag ||
+                                              controller.tag.isNotEmpty) &&
+                                          (!_isCompartmented ||
+                                              selectedCompartment != null)
+                                      ? () => controller.onSubmitConfirmation(
+                                            accepted: true,
+                                            flowCode: widget.flowStep.flowCode,
+                                            schedule: widget.schedule,
+                                            hasTag: widget.hasTag,
+                                            compartment: selectedCompartment
+                                                ?.compartment,
+                                          )
+                                      : null,
+                                  suffixIcon: Icons.thumb_up,
+                                  text: intl(context, 'app.yes'),
+                                ),
+                              ],
+                            ),
+                          ],
+                        )
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            OxChecklistHeader(
+                              icon: widget.icon,
+                              flowDescription: widget.flowStep.getLabel(),
+                              step: widget.step,
+                              scheduleNumber: widget.schedule.scheduleNumber,
+                            ),
+                            SizedBox(height: Ox.space.ref40),
+                            Column(
+                              children: [
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: Text(
+                                    intl(
+                                      context,
+                                      'checklist.driver-checkout-title',
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Ox.colors.blue,
+                                      fontSize: Ox.fontSizes.ref40,
+                                      fontWeight: Ox.fontWeights.bold,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: Ox.space.ref40),
+                                SizedBox(height: Ox.space.ref40),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: Text(
+                                    intl(context,
+                                            'checklist.driver-checkout-check-in-label') +
+                                        ': $checkinDate',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Ox.colors.blue,
+                                      fontSize: Ox.fontSizes.ref40,
+                                      fontWeight: Ox.fontWeights.bold,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: Ox.space.ref40),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: Text(
+                                    intl(context,
+                                            'checklist.driver-checkout-check-out-label') +
+                                        ': $checkoutDate',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Ox.colors.blue,
+                                      fontSize: Ox.fontSizes.ref40,
+                                      fontWeight: Ox.fontWeights.bold,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: Ox.space.ref40),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: Text(
+                                    intl(context,
+                                            'checklist.driver-checkout-total-label') +
+                                        ': $totalDate',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Ox.colors.blue,
+                                      fontSize: Ox.fontSizes.ref40,
+                                      fontWeight: Ox.fontWeights.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: Ox.space.ref100),
+                            Divider(
+                              color: Ox.colors.grayLight,
+                              height: 1,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                OxActionButton(
+                                  color: Ox.colors.white,
+                                  backgroundColor: Ox.colors.error,
+                                  isLoading:
+                                      controller.status == StepStatus.noLoading,
+                                  onPressed: !_isCompartmented ||
+                                          selectedCompartment != null
+                                      ? () => controller.onSubmitConfirmation(
+                                            accepted: false,
+                                            flowCode: widget.flowStep.flowCode,
+                                            schedule: widget.schedule,
+                                            hasTag: false,
+                                            compartment: selectedCompartment
+                                                ?.compartment,
+                                          )
+                                      : null,
+                                  prefixIcon: Icons.thumb_down,
+                                  text: intl(context, 'app.no'),
+                                ),
+                                OxActionButton(
+                                  color: Ox.colors.black,
+                                  backgroundColor: Ox.colors.green,
+                                  isLoading: controller.status ==
+                                      StepStatus.yesLoading,
+                                  onPressed: (!widget.hasTag ||
+                                              controller.tag.isNotEmpty) &&
+                                          (!_isCompartmented ||
+                                              selectedCompartment != null)
+                                      ? () async {
+                                          if (widget.hasDriverCheckout &&
+                                              totalDate != null) {
+                                            try {
+                                              await _driverCheckoutDataSource
+                                                  .postDriverCheckout(
+                                                scheduleNumber: widget
+                                                    .schedule.scheduleNumber,
+                                                totalTime: totalDate!,
+                                              );
+                                            } catch (e) {}
+                                          }
+                                          await controller.onSubmitConfirmation(
+                                            accepted: true,
+                                            flowCode: widget.flowStep.flowCode,
+                                            schedule: widget.schedule,
+                                            hasTag: widget.hasTag,
+                                            compartment: selectedCompartment
+                                                ?.compartment,
+                                          );
+                                        }
+                                      : null,
+                                  suffixIcon: Icons.thumb_up,
+                                  text: intl(context, 'app.yes'),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                      ),
-                      SizedBox(height: Ox.space.ref40),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          OxActionButton(
-                            color: Ox.colors.white,
-                            backgroundColor: Ox.colors.error,
-                            isLoading:
-                                controller.status == StepStatus.noLoading,
-                            onPressed:
-                                !_isCompartmented || selectedCompartment != null
-                                    ? () => controller.onSubmitConfirmation(
-                                          accepted: false,
-                                          flowCode: widget.flowStep.flowCode,
-                                          schedule: widget.schedule,
-                                          hasTag: false,
-                                          compartment:
-                                              selectedCompartment?.compartment,
-                                        )
-                                    : null,
-                            prefixIcon: Icons.thumb_down,
-                            text: intl(context, 'app.no'),
-                          ),
-                          OxActionButton(
-                            color: Ox.colors.black,
-                            backgroundColor: Ox.colors.green,
-                            isLoading:
-                                controller.status == StepStatus.yesLoading,
-                            onPressed:
-                                (!widget.hasTag || controller.tag.isNotEmpty) &&
-                                        (!_isCompartmented ||
-                                            selectedCompartment != null)
-                                    ? () => controller.onSubmitConfirmation(
-                                          accepted: true,
-                                          flowCode: widget.flowStep.flowCode,
-                                          schedule: widget.schedule,
-                                          hasTag: widget.hasTag,
-                                          compartment:
-                                              selectedCompartment?.compartment,
-                                        )
-                                    : null,
-                            suffixIcon: Icons.thumb_up,
-                            text: intl(context, 'app.yes'),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
                 ),
               ),
             ),

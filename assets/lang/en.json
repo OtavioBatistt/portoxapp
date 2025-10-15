@@ -185,5 +185,9 @@
   "sms-page.opt-1":" Go to Billing to collect documents.",
   "sms-page.opt-2":" Go to the Concierge.",
   "sms-page.opt-3":"Edit",
-  "sms-page.send-limit":"You have reached the limit of 3 submissions."
+  "sms-page.send-limit":"You have reached the limit of 3 submissions.",
+  "checklist.driver-checkout-title": "Driver, confirm your time of stay at the unit.",
+  "checklist.driver-checkout-check-in-label": "Check-in time",
+  "checklist.driver-checkout-check-out-label": "Check-out time",
+  "checklist.driver-checkout-total-label": "Total"
 }

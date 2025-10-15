@@ -138,7 +138,8 @@ class _ChecklistPageState extends State<ChecklistPage> {
         'FINAL_LOAD',
         'INIT_UNLOAD',
         'FINAL_UNLOAD',
-        'CONFIRM_GRADE'
+        'CONFIRM_GRADE',
+        'AWAITTING_DRIVER_SIGNATURE_CHECKOUT'
       ];
 
       final confirmationLabel =

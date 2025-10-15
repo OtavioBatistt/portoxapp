@@ -1,4 +1,5 @@
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:portox_app/app/modules/checklist/data/external/api/api_driver_checkout_datasource.dart';
 import 'package:portox_app/app/modules/checklist/data/external/api/api_seals_datasource.dart';
 import 'package:portox_app/app/modules/checklist/data/external/api/api_weighing_datasource.dart';
 import 'package:portox_app/app/modules/checklist/data/external/firebase/checklist_firebase_datasource.dart';
@@ -84,6 +85,7 @@ class ChecklistModule extends Module {
         Bind.factory((i) => SaveSealRepository(saveChecklistSeal: i())),
         Bind.factory((i) => LoadSealUseCase(loadSealRepository: i())),
         Bind.factory((i) => LoadSealRepository(loadChecklistSeal: i())),
+        Bind.factory((i) => ApiDriverCheckoutDataSource(client: i())),
       ];
 
   @override
@@ -150,6 +152,8 @@ class ChecklistModule extends Module {
               hasTag: params.hasTag,
               executedCompartments: params.executedCompartments,
               store: Modular.get(),
+              hasDriverCheckout: ['AWAITTING_DRIVER_SIGNATURE_CHECKOUT']
+                  .any(params.flowStep.flowCode.contains),
             );
           },
           maintainState: false,
@@ -183,7 +187,7 @@ class ChecklistModule extends Module {
               fields: params.fields,
               executedCompartments: params.executedCompartments,
               store: Modular.get(),
-              );
+            );
           },
         ),
         ChildRoute(
