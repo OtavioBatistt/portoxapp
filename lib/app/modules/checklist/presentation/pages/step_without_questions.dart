@@ -60,6 +60,7 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
   String? checkinDate = '';
   String? checkoutDate = '';
   String? totalDate = '';
+  String? driverQuestion = '';
 
   @override
   void initState() {
@@ -82,13 +83,16 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
         scheduleNumber: widget.schedule.scheduleNumber,
       );
 
-      final entryDate = result['entryDate'];
-      final exitDate = result['exitDate'];
+      final arrivalDate = result['arrivalDate'];
+      final checkoutDateApi = result['checkoutDate'];
+      final apiTime = result['time'];
+      final apiQuestion = result['question'];
 
       setState(() {
-        checkinDate = formatIsoDateToBrazilian(entryDate);
-        checkoutDate = formatIsoDateToBrazilian(exitDate);
-        totalDate = calculateTotalTime(entryDate, exitDate);
+        checkinDate = formatIsoDateToBrazilian(arrivalDate);
+        checkoutDate = formatIsoDateToBrazilian(checkoutDateApi);
+        totalDate = apiTime ?? '-';
+        driverQuestion = apiQuestion ?? '';
       });
     } catch (e) {
       debugPrint('Erro ao obter dados do checkout do motorista: $e');
@@ -324,10 +328,12 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
                                 SizedBox(
                                   width: double.infinity,
                                   child: Text(
-                                    intl(
-                                      context,
-                                      'checklist.driver-checkout-title',
-                                    ),
+                                    (driverQuestion?.isNotEmpty == true)
+                                        ? driverQuestion!
+                                        : intl(
+                                            context,
+                                            'checklist.driver-checkout-title',
+                                          ),
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       color: Ox.colors.blue,
@@ -421,17 +427,6 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
                                           (!_isCompartmented ||
                                               selectedCompartment != null)
                                       ? () async {
-                                          if (widget.hasDriverCheckout &&
-                                              totalDate != null) {
-                                            try {
-                                              await _driverCheckoutDataSource
-                                                  .postDriverCheckout(
-                                                scheduleNumber: widget
-                                                    .schedule.scheduleNumber,
-                                                totalTime: totalDate!,
-                                              );
-                                            } catch (e) {}
-                                          }
                                           await controller.onSubmitConfirmation(
                                             accepted: true,
                                             flowCode: widget.flowStep.flowCode,
