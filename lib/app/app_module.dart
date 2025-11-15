@@ -35,6 +35,7 @@ import 'package:portox_app/app/commons/app_store.dart';
 import 'package:portox_app/app/commons/config/environment.dart';
 import 'package:portox_app/app/commons/master_store.dart';
 import 'package:portox_app/app/modules/checklist/checklist_module.dart';
+import 'package:portox_app/app/modules/communication/data/services/service_firebase_source.dart';
 import 'package:portox_app/app/modules/occurrence/occurrence_module.dart';
 import 'package:portox_app/app/modules/schedule/data/external/api/api_master_datasource.dart';
 import 'package:portox_app/app/modules/schedule/data/external/firebase/firebase_datasource.dart';
@@ -197,6 +198,7 @@ class AppModule extends Module {
     Bind.factory((i) => LoadSchedulesUseCase(schedulesRepository: i())),
     Bind.factory((i) => FirebaseRepository(schedulesDataSource: i())),
     Bind.factory((i) => FirebaseDataSource(externalStorage: i())),
+    Bind.factory((i) => ServiceFirebaseSource()),
   ];
 
   @override

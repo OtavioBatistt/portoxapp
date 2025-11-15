@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:portox_app/app/modules/checklist/domain/entities/executed_step.dart';
 
 class ServiceFirebaseSource {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -84,6 +85,45 @@ class ServiceFirebaseSource {
     } catch (e) {
       // print('Erro ao buscar telefone do motorista');
       return null;
+    }
+  }
+
+  Future<void> saveExecutedStepsIfNotExists(
+      List<ExecutedStepEntity> steps) async {
+    for (final step in steps) {
+      if (step.flowCode == null || step.scheduleNumber == null) continue;
+
+      final exists = await existsFlowStepStatus(
+        flowCode: step.flowCode!,
+        scheduleNumber: step.scheduleNumber!,
+      );
+
+      if (!exists) {
+        await firestore.collection('flow-steps-status').add({
+          'flowCode': step.flowCode,
+          'scheduleNumber': step.scheduleNumber,
+          'createdAt': DateTime.now().toIso8601String(),
+        });
+      }
+    }
+  }
+
+  Future<bool> existsFlowStepStatus({
+    required String flowCode,
+    required String scheduleNumber,
+  }) async {
+    try {
+      final querySnapshot = await firestore
+          .collection('flow-steps-status')
+          .where('flowCode', isEqualTo: flowCode)
+          .where('scheduleNumber', isEqualTo: scheduleNumber)
+          .limit(1)
+          .get();
+
+      return querySnapshot.docs.isNotEmpty;
+    } catch (e) {
+      // print('Erro ao verificar existência de flow step');
+      return false;
     }
   }
 }

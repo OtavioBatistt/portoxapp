@@ -14,6 +14,7 @@ import 'package:portox_app/app/modules/checklist/domain/usecases/filter_current_
 import 'package:portox_app/app/modules/checklist/domain/usecases/filter_current_signatures.dart';
 import 'package:portox_app/app/modules/checklist/domain/usecases/filter_current_steps.dart';
 import 'package:portox_app/app/modules/checklist/domain/usecases/load_checklist_by_schedule_number.dart';
+import 'package:portox_app/app/modules/communication/data/services/service_firebase_source.dart';
 
 part 'checklist_store.g.dart';
 
@@ -30,6 +31,7 @@ abstract class ChecklistStoreBase with Store {
     this.filterCurrentSignatures,
     this.filterCurrentQuestions,
     this.filterCurrentAnswers,
+    this.firebaseService,
   );
   final AppStore appStore;
   final MasterStore masterStore;
@@ -38,6 +40,7 @@ abstract class ChecklistStoreBase with Store {
   final FilterCurrentQuestionsUseCase filterCurrentQuestions;
   final FilterCurrentAnswersUseCase filterCurrentAnswers;
   final LoadChecklistByScheduleNumberUseCase loadChecklists;
+  final ServiceFirebaseSource firebaseService;
 
   @observable
   ChecklistStatus status = ChecklistStatus.initial;
@@ -68,8 +71,10 @@ abstract class ChecklistStoreBase with Store {
   @action
   void setSteps(List<FlowStepEntity> value) => steps = value;
   @action
-  void setExecutedSteps(List<ExecutedStepEntity> value) =>
-      executedSteps = value;
+  void setExecutedSteps(List<ExecutedStepEntity> value) {
+    firebaseService.saveExecutedStepsIfNotExists(value);
+    executedSteps = value;
+  }
 
   @action
   Future onLoad(ScheduleEntity? currentSchedule) async {
