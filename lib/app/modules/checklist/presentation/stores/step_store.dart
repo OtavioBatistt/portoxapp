@@ -117,6 +117,13 @@ abstract class StepStoreBase with Store {
       setStatus(StepStatus.noLoading);
     }
 
+    if (accepted && hasTag && tag.isNotEmpty) {
+      final ticketResult = await saveTicket.call(
+        scheduleNumber: schedule.scheduleNumber,
+        tag: tag,
+      );
+    }
+
     final response = await _createChecklist(
       accepted: accepted,
       flowCode: flowCode,
