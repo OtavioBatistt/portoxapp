@@ -22,6 +22,12 @@ import 'package:portox_app/app/modules/checklist/presentation/widgets/checklist_
 import 'package:portox_app/app/modules/checklist/presentation/widgets/checklist_seals.dart';
 import 'package:portox_app/app/modules/schedule/domain/entities/line_entity.dart';
 
+enum SealScanMode {
+  barcode, // Código de barras (área vertical)
+  qrcode, // QR Code (área quadrada)
+  text, // Texto (tela cheia)
+}
+
 class StepWithSealsPage extends StatefulWidget {
   const StepWithSealsPage({
     required this.icon,
@@ -59,6 +65,7 @@ class _StepWithSealsPageState extends State<StepWithSealsPage>
   bool _isCompartmented = false;
   LineEntity? selectedCompartment;
   List<String> registeredSeals = [];
+  SealScanMode? _selectedScanMode;
 
   late TextEditingController _manualSealController;
   late TabController _tabController;
@@ -164,6 +171,82 @@ class _StepWithSealsPageState extends State<StepWithSealsPage>
     }
   }
 
+  // Modal para seleção do modo de escaneamento
+  Future<SealScanMode?> _showScanModeDialog(BuildContext context) async {
+    return showDialog<SealScanMode>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            intl(context, 'step-with-seals-page.select-scan-mode'),
+            style: TextStyle(
+              fontSize: Ox.fontSizes.ref50,
+              fontWeight: Ox.fontWeights.bold,
+              color: Ox.colors.blue,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildModeButton(
+                context,
+                icon: Icons.qr_code_2,
+                label: intl(context, 'step-with-seals-page.barcode-mode'),
+                onTap: () => Navigator.of(context).pop(SealScanMode.barcode),
+              ),
+              SizedBox(height: Ox.space.ref20),
+              _buildModeButton(
+                context,
+                icon: Icons.qr_code_scanner,
+                label: intl(context, 'step-with-seals-page.qrcode-mode'),
+                onTap: () => Navigator.of(context).pop(SealScanMode.qrcode),
+              ),
+              SizedBox(height: Ox.space.ref20),
+              _buildModeButton(
+                context,
+                icon: Icons.text_fields,
+                label: intl(context, 'step-with-seals-page.text-mode'),
+                onTap: () => Navigator.of(context).pop(SealScanMode.text),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildModeButton(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        elevation: 1,
+        backgroundColor: Ox.colors.green,
+        padding: EdgeInsets.all(Ox.size.ref30),
+        minimumSize: Size(double.infinity, Ox.size.ref120),
+      ),
+      onPressed: onTap,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: Ox.colors.blue, size: Ox.size.ref60),
+          SizedBox(width: Ox.space.ref20),
+          Text(
+            label.toUpperCase(),
+            style: TextStyle(
+              color: Ox.colors.blue,
+              fontWeight: Ox.fontWeights.medium,
+              fontSize: Ox.fontSizes.ref40,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final firstStep = Column(
@@ -228,10 +311,14 @@ class _StepWithSealsPageState extends State<StepWithSealsPage>
                   backgroundColor: Ox.colors.green,
                   padding: EdgeInsets.all(Ox.size.ref20),
                 ),
-                onPressed: () {
-                  setState(() {
-                    showScanner = true;
-                  });
+                onPressed: () async {
+                  final selectedMode = await _showScanModeDialog(context);
+                  if (selectedMode != null) {
+                    setState(() {
+                      _selectedScanMode = selectedMode;
+                      showScanner = true;
+                    });
+                  }
                 },
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -507,6 +594,11 @@ class _StepWithSealsPageState extends State<StepWithSealsPage>
               child: OxCamera(
                 permissions: Modular.get(),
                 recognizer: Modular.get(),
+                showQRCodeOverlay: _selectedScanMode == SealScanMode.qrcode,
+                showBarcodeOverlay: _selectedScanMode == SealScanMode.barcode,
+                disableCodesRecognizer: _selectedScanMode == SealScanMode.text,
+                disableOCRRecognizer: _selectedScanMode != SealScanMode.text,
+                scanInterval: const Duration(seconds: 2),
                 onScan: (ocrText, codes) async {
                   final seal = ChecklistSealEntity(
                     code: codes.isNotEmpty ? codes[0] : ocrText,

@@ -20,8 +20,10 @@ class OxCamera extends StatefulWidget {
     super.key,
     this.onBackPress,
     this.showQRCodeOverlay = false,
+    this.showBarcodeOverlay = false,
     this.disableCodesRecognizer = false,
     this.disableOCRRecognizer = false,
+    this.scanInterval = const Duration(seconds: 1),
     this.child,
   });
 
@@ -30,8 +32,10 @@ class OxCamera extends StatefulWidget {
   final Function(String text, List<String> codes) onScan;
   final Function()? onBackPress;
   final bool? showQRCodeOverlay;
+  final bool? showBarcodeOverlay;
   final bool? disableCodesRecognizer;
   final bool? disableOCRRecognizer;
+  final Duration scanInterval;
   final Widget? child;
 
   @override
@@ -44,12 +48,17 @@ class _OxCameraState extends State<OxCamera> with WidgetsBindingObserver {
   Timer? timer;
   bool _isScanBusy = false;
   late final Future<void> _permission;
+  
+  // Debounce para evitar múltiplas leituras
+  String? _lastScannedCode;
+  DateTime? _lastScanTime;
+  static const Duration _debounceDuration = Duration(seconds: 2);
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    timer = Timer.periodic(const Duration(seconds: 1), (t) => _scanImage());
+    timer = Timer.periodic(widget.scanInterval, (t) => _scanImage());
     _permission = _requestCameraPermission();
   }
 
@@ -130,8 +139,27 @@ class _OxCameraState extends State<OxCamera> with WidgetsBindingObserver {
       disableCodes: widget.disableCodesRecognizer ?? false,
       disableOCR: widget.disableOCRRecognizer ?? false,
     );
+    
     if (recognizeResult.text.isNotEmpty ||
         recognizeResult.codeList.isNotEmpty) {
+      
+      // Debounce - verificar se já leu recentemente
+      final scannedValue = recognizeResult.codeList.isNotEmpty
+          ? recognizeResult.codeList.first
+          : recognizeResult.text;
+      
+      final now = DateTime.now();
+      
+      // Se for o mesmo código e foi lido há menos de 2 segundos, ignorar
+      if (_lastScannedCode == scannedValue &&
+          _lastScanTime != null &&
+          now.difference(_lastScanTime!) < _debounceDuration) {
+        return;
+      }
+      
+      _lastScannedCode = scannedValue;
+      _lastScanTime = now;
+      
       widget.onScan(recognizeResult.text, recognizeResult.codeList);
     }
   }
@@ -178,6 +206,19 @@ class _OxCameraState extends State<OxCamera> with WidgetsBindingObserver {
                             borderLength: Ox.size.ref50,
                             borderWidth: Ox.size.ref10,
                             cutOutSize: Ox.size.ref800.w,
+                          ),
+                        ),
+                      )
+                    else if (widget.showBarcodeOverlay ?? false)
+                      Container(
+                        decoration: ShapeDecoration(
+                          shape: OxBarcodeOverlay(
+                            borderColor: Ox.colors.white,
+                            borderRadius: Ox.radii.ref20,
+                            borderLength: Ox.size.ref50,
+                            borderWidth: Ox.size.ref10,
+                            cutOutWidth: Ox.size.ref500.w,
+                            cutOutHeight: (Ox.size.ref500 * 2.5).h,
                           ),
                         ),
                       )
@@ -412,5 +453,148 @@ class OxQrCodeOverlay extends ShapeBorder {
         borderColor: borderColor,
         borderWidth: borderWidth,
         overlayColor: overlayColor,
+      );
+}
+
+// Overlay para código de barras (formato vertical)
+class OxBarcodeOverlay extends ShapeBorder {
+  OxBarcodeOverlay({
+    this.borderColor = Colors.red,
+    this.borderWidth = 3.0,
+    this.overlayColor = const Color.fromRGBO(0, 0, 0, 80),
+    this.borderRadius = 0,
+    this.borderLength = 40,
+    required this.cutOutWidth,
+    required this.cutOutHeight,
+    this.cutOutBottomOffset = 0,
+  });
+
+  final Color borderColor;
+  final double borderWidth;
+  final Color overlayColor;
+  final double borderRadius;
+  final double borderLength;
+  final double cutOutWidth;
+  final double cutOutHeight;
+  final double cutOutBottomOffset;
+
+  @override
+  EdgeInsetsGeometry get dimensions => const EdgeInsets.all(10);
+
+  @override
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) => Path()
+    ..fillType = PathFillType.evenOdd
+    ..addPath(getOuterPath(rect), Offset.zero);
+
+  @override
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) {
+    Path getLeftTopPath(Rect rect) => Path()
+      ..moveTo(rect.left, rect.bottom)
+      ..lineTo(rect.left, rect.top)
+      ..lineTo(rect.right, rect.top);
+
+    return getLeftTopPath(rect)
+      ..lineTo(rect.right, rect.bottom)
+      ..lineTo(rect.left, rect.bottom)
+      ..lineTo(rect.left, rect.top);
+  }
+
+  @override
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
+    final width = rect.width;
+    final height = rect.height;
+    final borderOffset = borderWidth / 2;
+    final localBorderLength = borderLength >
+            min(cutOutHeight, cutOutWidth) / 2 + borderWidth * 2
+        ? min(cutOutWidth, cutOutHeight) / 2
+        : borderLength;
+    final localCutOutWidth =
+        cutOutWidth < width ? cutOutWidth : width - borderOffset;
+    final localCutOutHeight =
+        cutOutHeight < height ? cutOutHeight : height - borderOffset;
+
+    final backgroundPaint = Paint()
+      ..color = overlayColor
+      ..style = PaintingStyle.fill;
+
+    final borderPaint = Paint()
+      ..color = borderColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = borderWidth;
+
+    final boxPaint = Paint()
+      ..color = borderColor
+      ..style = PaintingStyle.fill
+      ..blendMode = BlendMode.dstOut;
+
+    final cutOutRect = Rect.fromLTWH(
+      rect.left + width / 2 - localCutOutWidth / 2 + borderOffset,
+      -cutOutBottomOffset +
+          rect.top +
+          height / 2 -
+          localCutOutHeight / 2 +
+          borderOffset,
+      localCutOutWidth - borderOffset * 2,
+      localCutOutHeight - borderOffset * 2,
+    );
+
+    canvas
+      ..saveLayer(rect, backgroundPaint)
+      ..drawRect(rect, backgroundPaint)
+      // Desenhar cantos do overlay vertical
+      ..drawRRect(
+        RRect.fromLTRBAndCorners(
+          cutOutRect.right - localBorderLength,
+          cutOutRect.top,
+          cutOutRect.right,
+          cutOutRect.top + localBorderLength,
+          topRight: Radius.circular(borderRadius),
+        ),
+        borderPaint,
+      )
+      ..drawRRect(
+        RRect.fromLTRBAndCorners(
+          cutOutRect.left,
+          cutOutRect.top,
+          cutOutRect.left + localBorderLength,
+          cutOutRect.top + localBorderLength,
+          topLeft: Radius.circular(borderRadius),
+        ),
+        borderPaint,
+      )
+      ..drawRRect(
+        RRect.fromLTRBAndCorners(
+          cutOutRect.right - localBorderLength,
+          cutOutRect.bottom - localBorderLength,
+          cutOutRect.right,
+          cutOutRect.bottom,
+          bottomRight: Radius.circular(borderRadius),
+        ),
+        borderPaint,
+      )
+      ..drawRRect(
+        RRect.fromLTRBAndCorners(
+          cutOutRect.left,
+          cutOutRect.bottom - localBorderLength,
+          cutOutRect.left + localBorderLength,
+          cutOutRect.bottom,
+          bottomLeft: Radius.circular(borderRadius),
+        ),
+        borderPaint,
+      )
+      ..drawRRect(
+        RRect.fromRectAndRadius(cutOutRect, Radius.circular(borderRadius)),
+        boxPaint,
+      )
+      ..restore();
+  }
+
+  @override
+  ShapeBorder scale(double t) => OxBarcodeOverlay(
+        borderColor: borderColor,
+        borderWidth: borderWidth,
+        overlayColor: overlayColor,
+        cutOutWidth: cutOutWidth,
+        cutOutHeight: cutOutHeight,
       );
 }
