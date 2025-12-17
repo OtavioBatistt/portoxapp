@@ -189,5 +189,7 @@
   "checklist.driver-checkout-title": "Driver, confirm your time of stay at the unit.",
   "checklist.driver-checkout-check-in-label": "Check-in time",
   "checklist.driver-checkout-check-out-label": "Check-out time",
-  "checklist.driver-checkout-total-label": "Total"
+  "checklist.driver-checkout-total-label": "Total",
+  "checklist.driver-checkout-error": "Could not load the stay time summary. Tap \"No\" to go back and try again later.",
+  "checklist.driver-checkout-missing-data": "The API did not return all required data. Tap \"No\" to go back and try again later."
 }

@@ -189,5 +189,7 @@
   "checklist.driver-checkout-title": "Sr. MOTORISTA, Confirma o Tempo de Permanência na Unidade?",
   "checklist.driver-checkout-check-in-label": "Entrada",
   "checklist.driver-checkout-check-out-label": "Saída",
-  "checklist.driver-checkout-total-label": "Tempo"
+  "checklist.driver-checkout-total-label": "Tempo",
+  "checklist.driver-checkout-error": "Não foi possível carregar o tempo de permanência. Clique em \"Não\" para voltar e tente novamente mais tarde.",
+  "checklist.driver-checkout-missing-data": "A API não retornou todos os dados necessários. Clique em \"Não\" para voltar e tente novamente mais tarde."
 }

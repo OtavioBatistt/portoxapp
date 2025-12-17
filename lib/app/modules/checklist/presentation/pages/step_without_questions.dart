@@ -55,11 +55,14 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
   late StepStore controller;
   bool showScanner = false;
   bool _isCompartmented = false;
+  bool _isDriverCheckoutLoading = false;
+  bool _driverCheckoutUnavailable = false;
+  bool _driverCheckoutIncomplete = false;
   LineEntity? selectedCompartment;
   late ApiDriverCheckoutDataSource _driverCheckoutDataSource;
-  String? checkinDate = '';
-  String? checkoutDate = '';
-  String? totalDate = '';
+  String? checkinDate = '-';
+  String? checkoutDate = '-';
+  String? totalDate = '-';
   String? driverQuestion = '';
 
   @override
@@ -73,6 +76,7 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
     _driverCheckoutDataSource = Modular.get<ApiDriverCheckoutDataSource>();
 
     if (widget.hasDriverCheckout) {
+      _isDriverCheckoutLoading = true;
       _loadDriverCheckoutData();
     }
   }
@@ -88,14 +92,36 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
       final apiTime = result['time'];
       final apiQuestion = result['question'];
 
+      final hasArrival = arrivalDate?.isNotEmpty ?? false;
+      final hasCheckout = checkoutDateApi?.isNotEmpty ?? false;
+      final hasTime = apiTime?.isNotEmpty ?? false;
+      final computedTotal = hasTime
+          ? apiTime!
+          : (hasArrival && hasCheckout
+              ? calculateTotalTime(arrivalDate, checkoutDateApi)
+              : '-');
+      final hasRequiredFields =
+          hasArrival && hasCheckout && computedTotal.isNotEmpty && computedTotal != '-';
+
       setState(() {
+        _isDriverCheckoutLoading = false;
+        _driverCheckoutUnavailable = false;
+        _driverCheckoutIncomplete = !hasRequiredFields;
         checkinDate = formatIsoDateToBrazilian(arrivalDate);
         checkoutDate = formatIsoDateToBrazilian(checkoutDateApi);
-        totalDate = apiTime ?? '-';
+        totalDate = computedTotal;
         driverQuestion = apiQuestion ?? '';
       });
     } catch (e) {
       debugPrint('Erro ao obter dados do checkout do motorista: $e');
+      setState(() {
+        _isDriverCheckoutLoading = false;
+        _driverCheckoutUnavailable = true;
+        _driverCheckoutIncomplete = true;
+        checkinDate = '-';
+        checkoutDate = '-';
+        totalDate = '-';
+      });
     }
   }
 
@@ -388,6 +414,29 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
                                     ),
                                   ),
                                 ),
+                                if (_driverCheckoutUnavailable ||
+                                    _driverCheckoutIncomplete)
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.only(top: Ox.space.ref30),
+                                    child: Text(
+                                      _driverCheckoutUnavailable
+                                          ? intl(
+                                              context,
+                                              'checklist.driver-checkout-error',
+                                            )
+                                          : intl(
+                                              context,
+                                              'checklist.driver-checkout-missing-data',
+                                            ),
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: Ox.colors.error,
+                                        fontSize: Ox.fontSizes.ref30,
+                                        fontWeight: Ox.fontWeights.medium,
+                                      ),
+                                    ),
+                                  ),
                               ],
                             ),
                             SizedBox(height: Ox.space.ref100),
@@ -425,7 +474,10 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
                                   onPressed: (!widget.hasTag ||
                                               controller.tag.isNotEmpty) &&
                                           (!_isCompartmented ||
-                                              selectedCompartment != null)
+                                              selectedCompartment != null) &&
+                                          !_driverCheckoutUnavailable &&
+                                          !_driverCheckoutIncomplete &&
+                                          !_isDriverCheckoutLoading
                                       ? () async {
                                           await controller.onSubmitConfirmation(
                                             accepted: true,
