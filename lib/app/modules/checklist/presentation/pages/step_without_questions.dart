@@ -100,8 +100,10 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
           : (hasArrival && hasCheckout
               ? calculateTotalTime(arrivalDate, checkoutDateApi)
               : '-');
-      final hasRequiredFields =
-          hasArrival && hasCheckout && computedTotal.isNotEmpty && computedTotal != '-';
+      final hasRequiredFields = hasArrival &&
+          hasCheckout &&
+          computedTotal.isNotEmpty &&
+          computedTotal != '-';
 
       setState(() {
         _isDriverCheckoutLoading = false;
@@ -363,7 +365,7 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       color: Ox.colors.blue,
-                                      fontSize: Ox.fontSizes.ref40,
+                                      fontSize: Ox.fontSizes.ref50,
                                       fontWeight: Ox.fontWeights.bold,
                                     ),
                                   ),
@@ -379,7 +381,7 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       color: Ox.colors.blue,
-                                      fontSize: Ox.fontSizes.ref40,
+                                      fontSize: Ox.fontSizes.ref50,
                                       fontWeight: Ox.fontWeights.bold,
                                     ),
                                   ),
@@ -394,7 +396,7 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       color: Ox.colors.blue,
-                                      fontSize: Ox.fontSizes.ref40,
+                                      fontSize: Ox.fontSizes.ref50,
                                       fontWeight: Ox.fontWeights.bold,
                                     ),
                                   ),
@@ -409,7 +411,7 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       color: Ox.colors.blue,
-                                      fontSize: Ox.fontSizes.ref40,
+                                      fontSize: Ox.fontSizes.ref50,
                                       fontWeight: Ox.fontWeights.bold,
                                     ),
                                   ),
@@ -418,7 +420,7 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
                                     _driverCheckoutIncomplete)
                                   Padding(
                                     padding:
-                                        EdgeInsets.only(top: Ox.space.ref30),
+                                        EdgeInsets.only(top: Ox.space.ref260.h),
                                     child: Text(
                                       _driverCheckoutUnavailable
                                           ? intl(
@@ -432,7 +434,7 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                         color: Ox.colors.error,
-                                        fontSize: Ox.fontSizes.ref30,
+                                        fontSize: Ox.fontSizes.ref40,
                                         fontWeight: Ox.fontWeights.medium,
                                       ),
                                     ),

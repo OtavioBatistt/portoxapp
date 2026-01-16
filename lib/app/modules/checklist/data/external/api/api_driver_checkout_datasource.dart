@@ -21,7 +21,7 @@ class ApiDriverCheckoutDataSource {
       return {
         'id': data['id'],
         'scheduleNumber': data['schedule_number'] ?? '',
-        'arrivalDate': data['arrivel_date'] ?? '',
+        'arrivalDate': data['arrival_date'] ?? '',
         'checkoutDate': data['checkout_date'] ?? '',
         'question': data['question'] ?? '',
         'time': data['time'] ?? '',
