@@ -605,10 +605,13 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
                                   step: widget.step,
                                   scheduleNumber: widget.schedule.scheduleNumber,
                                 ),
-                                SizedBox(height: Ox.space.ref40),
+                                SizedBox(height: Ox.space.ref20),
                                 Expanded(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                                  child: ListView(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: Ox.space.ref20.w,
+                                      vertical: Ox.space.ref20.h,
+                                    ),
                                     children: [
                                       // Indicador de progresso (ex: "1/2")
                                       Text(
@@ -633,23 +636,27 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
                                           fontWeight: Ox.fontWeights.bold,
                                         ),
                                       ),
-                                      SizedBox(height: Ox.space.ref60),
+                                      SizedBox(height: Ox.space.ref40),
                                       OxSignature(
                                         height: Ox.size.ref400.w,
                                         orientation: OxSignatureOrientationEnum.landscape,
                                         controller: _signatureController,
                                       ),
+                                      SizedBox(height: Ox.space.ref100), // Espaçamento extra para evitar sobreposição
                                     ],
                                   ),
                                 ),
-                                SizedBox(height: Ox.space.ref40),
+                                SizedBox(height: Ox.space.ref60),
                                 Divider(
                                   color: Ox.colors.grayLight,
                                   height: 1,
                                 ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
+                                SizedBox(height: Ox.space.ref20),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: Ox.space.ref20.w),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
                                     // Botão Voltar (sempre visível, cancela tudo)
                                     if (_isFirstSignature())
                                       OxActionButton(
@@ -736,7 +743,8 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
                                         suffixIcon: Icons.check,
                                         text: intl(context, 'app.confirm'),
                                       ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
