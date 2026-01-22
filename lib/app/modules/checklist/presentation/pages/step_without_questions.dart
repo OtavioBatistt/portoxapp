@@ -66,6 +66,7 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
   bool _driverCheckoutUnavailable = false;
   bool _driverCheckoutIncomplete = false;
   bool _showSignatureStep = false;
+  int _currentSignatureIndex = 0;
   LineEntity? selectedCompartment;
   late ApiDriverCheckoutDataSource _driverCheckoutDataSource;
   String? checkinDate = '-';
@@ -73,7 +74,7 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
   String? totalDate = '-';
   String? driverQuestion = '';
   late SignatureController _signatureController;
-  String _signatureImage = '';
+  List<String> _signatureImages = [];
   List<SignatureEntity>? _signatures;
 
   @override
@@ -91,6 +92,24 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
       penColor: Ox.colors.black,
       penStrokeWidth: 4,
     );
+
+    // Listener para salvar assinatura quando o usuário desenhar
+    _signatureController.addListener(() {
+      if (_showSignatureStep && _signatures != null && _signatures!.isNotEmpty) {
+        _signatureController.toPngBytes().then((value) {
+          if (value != null) {
+            final imageEncoded = base64.encode(value);
+            setState(() {
+              _signatureImages[_currentSignatureIndex] = imageEncoded;
+            });
+          } else {
+            setState(() {
+              _signatureImages[_currentSignatureIndex] = '';
+            });
+          }
+        });
+      }
+    });
 
     if (widget.hasDriverCheckout) {
       _isDriverCheckoutLoading = true;
@@ -200,14 +219,41 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
       
       setState(() {
         _signatures = signatures;
+        // Inicializar lista de imagens vazias (uma para cada assinatura)
+        _signatureImages = List.generate(signatures.length, (index) => '');
       });
     } catch (e) {
       debugPrint('Erro ao carregar configurações de assinatura: $e');
       setState(() {
         _signatures = [];
+        _signatureImages = [];
       });
     }
   }
+
+  void _goToNextSignature() {
+    if (_currentSignatureIndex < _signatures!.length - 1) {
+      setState(() {
+        _currentSignatureIndex++;
+        // Restaurar assinatura anterior se existir
+        _signatureController.clear();
+        // Não podemos restaurar pontos de uma imagem base64, então começa limpo
+      });
+    }
+  }
+
+  void _goToPreviousSignature() {
+    if (_currentSignatureIndex > 0) {
+      setState(() {
+        _currentSignatureIndex--;
+        // Restaurar assinatura anterior se existir
+        _signatureController.clear();
+      });
+    }
+  }
+
+  bool _isFirstSignature() => _currentSignatureIndex == 0;
+  bool _isLastSignature() => _currentSignatureIndex == _signatures!.length - 1;
 
   @override
   void dispose() {
@@ -564,9 +610,21 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
+                                      // Indicador de progresso (ex: "1/2")
+                                      Text(
+                                        '${_currentSignatureIndex + 1}/${_signatures?.length ?? 0}',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          color: Ox.colors.blue,
+                                          fontSize: Ox.fontSizes.ref40,
+                                          fontWeight: Ox.fontWeights.medium,
+                                        ),
+                                      ),
+                                      SizedBox(height: Ox.space.ref20),
+                                      // Descrição da assinatura atual
                                       Text(
                                         _signatures != null && _signatures!.isNotEmpty
-                                            ? controller.getSignatureDescription(_signatures!.first)
+                                            ? controller.getSignatureDescription(_signatures![_currentSignatureIndex])
                                             : 'Assinatura do Motorista',
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
@@ -590,42 +648,82 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
                                   height: 1,
                                 ),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    OxActionButton(
-                                      color: Ox.colors.blue,
-                                      backgroundColor: Ox.colors.white,
-                                      onPressed: () {
-                                        setState(() {
-                                          _showSignatureStep = false;
-                                          _signatureController.clear();
-                                        });
-                                      },
-                                      prefixIcon: Icons.arrow_back,
-                                      text: intl(context, 'app.back'),
-                                    ),
-                                    OxActionButton(
-                                      color: Ox.colors.black,
-                                      backgroundColor: Ox.colors.green,
-                                      isLoading: controller.status == StepStatus.yesLoading,
-                                      onPressed: () async {
-                                        // Captura a assinatura em base64
-                                        final signatureBytes = await _signatureController.toPngBytes();
-                                        if (signatureBytes != null) {
-                                          _signatureImage = base64.encode(signatureBytes);
+                                    // Botão Voltar (sempre visível, cancela tudo)
+                                    if (_isFirstSignature())
+                                      OxActionButton(
+                                        color: Ox.colors.blue,
+                                        backgroundColor: Ox.colors.white,
+                                        onPressed: () {
+                                          setState(() {
+                                            _showSignatureStep = false;
+                                            _currentSignatureIndex = 0;
+                                            _signatureController.clear();
+                                            _signatureImages = List.generate(_signatures!.length, (index) => '');
+                                          });
+                                        },
+                                        prefixIcon: Icons.arrow_back,
+                                        text: intl(context, 'app.leave'),
+                                      ),
+                                    // Botão Anterior (só aparece se não for a primeira)
+                                    if (!_isFirstSignature())
+                                      OxActionButton(
+                                        color: Ox.colors.blue,
+                                        backgroundColor: Ox.colors.white,
+                                        onPressed: () {
+                                          _goToPreviousSignature();
+                                        },
+                                        prefixIcon: Icons.arrow_back,
+                                        text: intl(context, 'app.back'),
+                                      ),
+                                    const Spacer(),
+                                    // Botão Próxima (aparece se não for a última)
+                                    if (!_isLastSignature())
+                                      OxActionButton(
+                                        color: Ox.colors.black,
+                                        backgroundColor: Ox.colors.green,
+                                        onPressed: () {
+                                          _goToNextSignature();
+                                        },
+                                        suffixIcon: Icons.arrow_forward,
+                                        text: intl(context, 'app.next'),
+                                      ),
+                                    // Botão Confirmar (só na última assinatura)
+                                    if (_isLastSignature())
+                                      OxActionButton(
+                                        color: Ox.colors.black,
+                                        backgroundColor: Ox.colors.green,
+                                        isLoading: controller.status == StepStatus.yesLoading,
+                                        onPressed: () async {
+                                          // Validar se todas as assinaturas foram preenchidas
+                                          bool allSigned = true;
+                                          for (int i = 0; i < _signatureImages.length; i++) {
+                                            if (_signatureImages[i].isEmpty) {
+                                              allSigned = false;
+                                              break;
+                                            }
+                                          }
                                           
-                                          // Cria a lista de assinaturas
-                                          final signatures = [
-                                            ChecklistSignatureEntity(
-                                              id: _signatures!.first.id,
-                                              image: _signatureImage,
+                                          if (!allSigned) {
+                                            await showErrorFlushbar(
+                                              message: 'Por favor, complete todas as assinaturas antes de confirmar',
+                                            ).show(context);
+                                            return;
+                                          }
+                                          
+                                          // Cria a lista com TODAS as assinaturas
+                                          final signatures = _signatures!.asMap().entries.map((entry) {
+                                            return ChecklistSignatureEntity(
+                                              id: entry.value.id,
+                                              image: _signatureImages[entry.key],
                                               createdAt: DateTime.now().toString(),
                                               mimeType: 'image/png',
-                                              skipped: false,
-                                            ),
-                                          ];
+                                              skipped: _signatureImages[entry.key].isEmpty,
+                                            );
+                                          }).toList();
                                           
-                                          // Envia com as assinaturas
+                                          // Envia com TODAS as assinaturas
                                           await controller.onSubmitWithQuestions(
                                             accepted: true,
                                             flowCode: widget.flowStep.flowCode,
@@ -634,16 +732,10 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
                                             signatures: signatures,
                                             compartment: selectedCompartment?.compartment,
                                           );
-                                        } else {
-                                          // Mostra mensagem de erro se não houver assinatura
-                                          await showErrorFlushbar(
-                                            message: 'Por favor, assine antes de confirmar',
-                                          ).show(context);
-                                        }
-                                      },
-                                      suffixIcon: Icons.check,
-                                      text: intl(context, 'app.confirm'),
-                                    ),
+                                        },
+                                        suffixIcon: Icons.check,
+                                        text: intl(context, 'app.confirm'),
+                                      ),
                                   ],
                                 ),
                               ],
