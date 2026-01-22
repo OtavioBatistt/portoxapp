@@ -1,24 +1,31 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:portox_app/app/commons/adapters/localizations/translate_app.dart';
+import 'package:portox_app/app/commons/domain/checklist_signature_entity.dart';
 import 'package:portox_app/app/commons/domain/flow_step_entity.dart';
 import 'package:portox_app/app/commons/domain/schedule_entity.dart';
+import 'package:portox_app/app/commons/domain/signature_entity.dart';
 import 'package:portox_app/app/commons/styles/tokens.dart';
 import 'package:portox_app/app/commons/widgets/app_bar.dart';
 import 'package:portox_app/app/commons/widgets/camera.dart';
 import 'package:portox_app/app/commons/widgets/flushbar.dart';
 import 'package:portox_app/app/commons/widgets/layout.dart';
+import 'package:portox_app/app/commons/widgets/signature.dart';
 import 'package:portox_app/app/modules/checklist/data/external/api/api_driver_checkout_datasource.dart';
+import 'package:portox_app/app/modules/checklist/presentation/stores/checklist_store.dart';
 import 'package:portox_app/app/modules/checklist/presentation/stores/step_store.dart';
 import 'package:portox_app/app/modules/checklist/presentation/widgets/action_button.dart';
 import 'package:portox_app/app/modules/checklist/presentation/widgets/checklist_fields.dart';
 import 'package:portox_app/app/modules/checklist/presentation/widgets/checklist_header.dart';
 import 'package:portox_app/app/modules/schedule/domain/entities/line_entity.dart';
+import 'package:signature/signature.dart';
 
 class StepWithoutQuestionsPage extends StatefulWidget {
   const StepWithoutQuestionsPage({
@@ -58,12 +65,16 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
   bool _isDriverCheckoutLoading = false;
   bool _driverCheckoutUnavailable = false;
   bool _driverCheckoutIncomplete = false;
+  bool _showSignatureStep = false;
   LineEntity? selectedCompartment;
   late ApiDriverCheckoutDataSource _driverCheckoutDataSource;
   String? checkinDate = '-';
   String? checkoutDate = '-';
   String? totalDate = '-';
   String? driverQuestion = '';
+  late SignatureController _signatureController;
+  String _signatureImage = '';
+  List<SignatureEntity>? _signatures;
 
   @override
   void initState() {
@@ -75,9 +86,16 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
 
     _driverCheckoutDataSource = Modular.get<ApiDriverCheckoutDataSource>();
 
+    // Inicializar SignatureController
+    _signatureController = SignatureController(
+      penColor: Ox.colors.black,
+      penStrokeWidth: 4,
+    );
+
     if (widget.hasDriverCheckout) {
       _isDriverCheckoutLoading = true;
       _loadDriverCheckoutData();
+      _loadSignatureConfig();
     }
   }
 
@@ -171,9 +189,30 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
     }
   }
 
+  void _loadSignatureConfig() {
+    try {
+      // Buscar as assinaturas configuradas para este flow usando o ChecklistStore
+      final checklistStore = Modular.get<ChecklistStore>();
+      final signatures = checklistStore.getSignatures(
+        widget.flowStep,
+        widget.schedule,
+      );
+      
+      setState(() {
+        _signatures = signatures;
+      });
+    } catch (e) {
+      debugPrint('Erro ao carregar configurações de assinatura: $e');
+      setState(() {
+        _signatures = [];
+      });
+    }
+  }
+
   @override
   void dispose() {
     controller.setTag('');
+    _signatureController.dispose();
     super.dispose();
   }
 
@@ -214,11 +253,15 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
         child: Observer(
           builder: (context) => Scaffold(
             backgroundColor: Ox.colors.white,
-            appBar: OxAppBar(appStore: Modular.get()),
+            appBar: _showSignatureStep 
+                ? null 
+                : OxAppBar(appStore: Modular.get()),
             body: OxLayout(
-              child: Visibility(
-                visible: !showScanner,
-                replacement: OxCamera(
+              child: RotatedBox(
+                quarterTurns: _showSignatureStep ? 1 : 0,
+                child: Visibility(
+                  visible: !showScanner,
+                  replacement: OxCamera(
                   permissions: Modular.get(),
                   recognizer: Modular.get(),
                   onScan: (_, codes) async {
@@ -341,17 +384,18 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
                             ),
                           ],
                         )
-                      : Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            OxChecklistHeader(
-                              icon: widget.icon,
-                              flowDescription: widget.flowStep.getLabel(),
-                              step: widget.step,
-                              scheduleNumber: widget.schedule.scheduleNumber,
-                            ),
-                            SizedBox(height: Ox.space.ref40),
-                            Column(
+                      : !_showSignatureStep
+                          ? Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                OxChecklistHeader(
+                                  icon: widget.icon,
+                                  flowDescription: widget.flowStep.getLabel(),
+                                  step: widget.step,
+                                  scheduleNumber: widget.schedule.scheduleNumber,
+                                ),
+                                SizedBox(height: Ox.space.ref40),
+                                Column(
                               children: [
                                 SizedBox(
                                   width: double.infinity,
@@ -481,14 +525,22 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
                                           !_driverCheckoutIncomplete &&
                                           !_isDriverCheckoutLoading
                                       ? () async {
-                                          await controller.onSubmitConfirmation(
-                                            accepted: true,
-                                            flowCode: widget.flowStep.flowCode,
-                                            schedule: widget.schedule,
-                                            hasTag: widget.hasTag,
-                                            compartment: selectedCompartment
-                                                ?.compartment,
-                                          );
+                                          // Se tem assinaturas configuradas, mostra tela de assinatura
+                                          if (_signatures != null && _signatures!.isNotEmpty) {
+                                            setState(() {
+                                              _showSignatureStep = true;
+                                            });
+                                          } else {
+                                            // Senão, submete diretamente sem assinatura
+                                            await controller.onSubmitConfirmation(
+                                              accepted: true,
+                                              flowCode: widget.flowStep.flowCode,
+                                              schedule: widget.schedule,
+                                              hasTag: widget.hasTag,
+                                              compartment: selectedCompartment
+                                                  ?.compartment,
+                                            );
+                                          }
                                         }
                                       : null,
                                   suffixIcon: Icons.thumb_up,
@@ -497,8 +549,107 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
                               ],
                             ),
                           ],
-                        ),
+                        )
+                          : Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                OxChecklistHeader(
+                                  icon: widget.icon,
+                                  flowDescription: widget.flowStep.getLabel(),
+                                  step: widget.step,
+                                  scheduleNumber: widget.schedule.scheduleNumber,
+                                ),
+                                SizedBox(height: Ox.space.ref40),
+                                Expanded(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        _signatures != null && _signatures!.isNotEmpty
+                                            ? controller.getSignatureDescription(_signatures!.first)
+                                            : 'Assinatura do Motorista',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          color: Ox.colors.blue,
+                                          fontSize: Ox.fontSizes.ref60,
+                                          fontWeight: Ox.fontWeights.bold,
+                                        ),
+                                      ),
+                                      SizedBox(height: Ox.space.ref60),
+                                      OxSignature(
+                                        height: Ox.size.ref400.w,
+                                        orientation: OxSignatureOrientationEnum.landscape,
+                                        controller: _signatureController,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: Ox.space.ref40),
+                                Divider(
+                                  color: Ox.colors.grayLight,
+                                  height: 1,
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                  children: [
+                                    OxActionButton(
+                                      color: Ox.colors.blue,
+                                      backgroundColor: Ox.colors.white,
+                                      onPressed: () {
+                                        setState(() {
+                                          _showSignatureStep = false;
+                                          _signatureController.clear();
+                                        });
+                                      },
+                                      prefixIcon: Icons.arrow_back,
+                                      text: intl(context, 'app.back'),
+                                    ),
+                                    OxActionButton(
+                                      color: Ox.colors.black,
+                                      backgroundColor: Ox.colors.green,
+                                      isLoading: controller.status == StepStatus.yesLoading,
+                                      onPressed: () async {
+                                        // Captura a assinatura em base64
+                                        final signatureBytes = await _signatureController.toPngBytes();
+                                        if (signatureBytes != null) {
+                                          _signatureImage = base64.encode(signatureBytes);
+                                          
+                                          // Cria a lista de assinaturas
+                                          final signatures = [
+                                            ChecklistSignatureEntity(
+                                              id: _signatures!.first.id,
+                                              image: _signatureImage,
+                                              createdAt: DateTime.now().toString(),
+                                              mimeType: 'image/png',
+                                              skipped: false,
+                                            ),
+                                          ];
+                                          
+                                          // Envia com as assinaturas
+                                          await controller.onSubmitWithQuestions(
+                                            accepted: true,
+                                            flowCode: widget.flowStep.flowCode,
+                                            schedule: widget.schedule,
+                                            answers: [],
+                                            signatures: signatures,
+                                            compartment: selectedCompartment?.compartment,
+                                          );
+                                        } else {
+                                          // Mostra mensagem de erro se não houver assinatura
+                                          await showErrorFlushbar(
+                                            message: 'Por favor, assine antes de confirmar',
+                                          ).show(context);
+                                        }
+                                      },
+                                      suffixIcon: Icons.check,
+                                      text: intl(context, 'app.confirm'),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                 ),
+              ),
               ),
             ),
           ),
