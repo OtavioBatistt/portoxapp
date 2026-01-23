@@ -95,7 +95,9 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
 
     // Listener para salvar assinatura quando o usuário desenhar
     _signatureController.addListener(() {
-      if (_showSignatureStep && _signatures != null && _signatures!.isNotEmpty) {
+      if (_showSignatureStep &&
+          _signatures != null &&
+          _signatures!.isNotEmpty) {
         _signatureController.toPngBytes().then((value) {
           if (value != null) {
             final imageEncoded = base64.encode(value);
@@ -216,7 +218,7 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
         widget.flowStep,
         widget.schedule,
       );
-      
+
       setState(() {
         _signatures = signatures;
         // Inicializar lista de imagens vazias (uma para cada assinatura)
@@ -299,457 +301,506 @@ class _StepWithoutQuestionsPageState extends State<StepWithoutQuestionsPage> {
         child: Observer(
           builder: (context) => Scaffold(
             backgroundColor: Ox.colors.white,
-            appBar: _showSignatureStep 
-                ? null 
-                : OxAppBar(appStore: Modular.get()),
+            appBar:
+                _showSignatureStep ? null : OxAppBar(appStore: Modular.get()),
             body: OxLayout(
               child: RotatedBox(
                 quarterTurns: _showSignatureStep ? 1 : 0,
                 child: Visibility(
                   visible: !showScanner,
                   replacement: OxCamera(
-                  permissions: Modular.get(),
-                  recognizer: Modular.get(),
-                  onScan: (_, codes) async {
-                    if (controller.status == StepStatus.yesLoading) {
-                      return;
-                    }
-                    final result = await controller.checkTag(
-                      widget.schedule.scheduleNumber,
-                      codes,
-                    );
-                    if (result.isNotEmpty) {
-                      await showErrorFlushbar(message: result).show(context);
-                    } else {
+                    permissions: Modular.get(),
+                    recognizer: Modular.get(),
+                    onScan: (_, codes) async {
+                      if (controller.status == StepStatus.yesLoading) {
+                        return;
+                      }
+                      final result = await controller.checkTag(
+                        widget.schedule.scheduleNumber,
+                        codes,
+                      );
+                      if (result.isNotEmpty) {
+                        await showErrorFlushbar(message: result).show(context);
+                      } else {
+                        setState(() => showScanner = false);
+                      }
+                    },
+                    onBackPress: () {
+                      controller.setStatus(StepStatus.initial);
                       setState(() => showScanner = false);
-                    }
-                  },
-                  onBackPress: () {
-                    controller.setStatus(StepStatus.initial);
-                    setState(() => showScanner = false);
-                  },
-                  showQRCodeOverlay: true,
-                  disableOCRRecognizer: true,
-                ),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: Ox.space.ref40.w,
-                    vertical: Ox.space.ref50.h,
+                    },
+                    showQRCodeOverlay: true,
+                    disableOCRRecognizer: true,
                   ),
-                  child: !widget.hasDriverCheckout
-                      ? Column(
-                          children: [
-                            OxChecklistHeader(
-                              icon: widget.icon,
-                              flowDescription: widget.flowStep.getLabel(),
-                              step: widget.step,
-                              scheduleNumber: widget.schedule.scheduleNumber,
-                            ),
-                            OxChecklistFields(
-                              fields: controller.fields,
-                              hasTag: widget.hasTag,
-                              onTapTag: () {
-                                setState(() {
-                                  showScanner = true;
-                                });
-                              },
-                              compartments: handleCompartmentOptions(),
-                              onTapCompartment: _isCompartmented
-                                  ? (value) {
-                                      setState(
-                                        () => selectedCompartment =
-                                            parseLineOption(value),
-                                      );
-                                    }
-                                  : null,
-                            ),
-                            if (widget.schedule.balanceTag) Container(),
-                            SizedBox(height: Ox.space.ref40),
-                            Divider(
-                              color: Ox.colors.grayLight,
-                              height: 1,
-                            ),
-                            SizedBox(height: Ox.space.ref40),
-                            SizedBox(
-                              width: double.infinity,
-                              child: Text(
-                                widget.confirmationLabel,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Ox.colors.blue,
-                                  fontSize: Ox.fontSizes.ref40,
-                                  fontWeight: Ox.fontWeights.bold,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: Ox.space.ref40.w,
+                      vertical: Ox.space.ref50.h,
+                    ),
+                    child: !widget.hasDriverCheckout
+                        ? Column(
+                            children: [
+                              OxChecklistHeader(
+                                icon: widget.icon,
+                                flowDescription: widget.flowStep.getLabel(),
+                                step: widget.step,
+                                scheduleNumber: widget.schedule.scheduleNumber,
+                              ),
+                              OxChecklistFields(
+                                fields: controller.fields,
+                                hasTag: widget.hasTag,
+                                onTapTag: () {
+                                  setState(() {
+                                    showScanner = true;
+                                  });
+                                },
+                                compartments: handleCompartmentOptions(),
+                                onTapCompartment: _isCompartmented
+                                    ? (value) {
+                                        setState(
+                                          () => selectedCompartment =
+                                              parseLineOption(value),
+                                        );
+                                      }
+                                    : null,
+                              ),
+                              if (widget.schedule.balanceTag) Container(),
+                              SizedBox(height: Ox.space.ref40),
+                              Divider(
+                                color: Ox.colors.grayLight,
+                                height: 1,
+                              ),
+                              SizedBox(height: Ox.space.ref40),
+                              SizedBox(
+                                width: double.infinity,
+                                child: Text(
+                                  widget.confirmationLabel,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Ox.colors.blue,
+                                    fontSize: Ox.fontSizes.ref40,
+                                    fontWeight: Ox.fontWeights.bold,
+                                  ),
                                 ),
                               ),
-                            ),
-                            SizedBox(height: Ox.space.ref40),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                OxActionButton(
-                                  color: Ox.colors.white,
-                                  backgroundColor: Ox.colors.error,
-                                  isLoading:
-                                      controller.status == StepStatus.noLoading,
-                                  onPressed: !_isCompartmented ||
-                                          selectedCompartment != null
-                                      ? () => controller.onSubmitConfirmation(
-                                            accepted: false,
-                                            flowCode: widget.flowStep.flowCode,
-                                            schedule: widget.schedule,
-                                            hasTag: false,
-                                            compartment: selectedCompartment
-                                                ?.compartment,
-                                          )
-                                      : null,
-                                  prefixIcon: Icons.thumb_down,
-                                  text: intl(context, 'app.no'),
-                                ),
-                                OxActionButton(
-                                  color: Ox.colors.black,
-                                  backgroundColor: Ox.colors.green,
-                                  isLoading: controller.status ==
-                                      StepStatus.yesLoading,
-                                  onPressed: (!widget.hasTag ||
-                                              controller.tag.isNotEmpty) &&
-                                          (!_isCompartmented ||
-                                              selectedCompartment != null)
-                                      ? () => controller.onSubmitConfirmation(
-                                            accepted: true,
-                                            flowCode: widget.flowStep.flowCode,
-                                            schedule: widget.schedule,
-                                            hasTag: widget.hasTag,
-                                            compartment: selectedCompartment
-                                                ?.compartment,
-                                          )
-                                      : null,
-                                  suffixIcon: Icons.thumb_up,
-                                  text: intl(context, 'app.yes'),
-                                ),
-                              ],
-                            ),
-                          ],
-                        )
-                      : !_showSignatureStep
-                          ? Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                OxChecklistHeader(
-                                  icon: widget.icon,
-                                  flowDescription: widget.flowStep.getLabel(),
-                                  step: widget.step,
-                                  scheduleNumber: widget.schedule.scheduleNumber,
-                                ),
-                                SizedBox(height: Ox.space.ref40),
-                                Column(
-                              children: [
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: Text(
-                                    (driverQuestion?.isNotEmpty == true)
-                                        ? driverQuestion!
-                                        : intl(
-                                            context,
-                                            'checklist.driver-checkout-title',
-                                          ),
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: Ox.colors.blue,
-                                      fontSize: Ox.fontSizes.ref50,
-                                      fontWeight: Ox.fontWeights.bold,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: Ox.space.ref40),
-                                SizedBox(height: Ox.space.ref40),
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: Text(
-                                    intl(context,
-                                            'checklist.driver-checkout-check-in-label') +
-                                        ': $checkinDate',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: Ox.colors.blue,
-                                      fontSize: Ox.fontSizes.ref50,
-                                      fontWeight: Ox.fontWeights.bold,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: Ox.space.ref40),
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: Text(
-                                    intl(context,
-                                            'checklist.driver-checkout-check-out-label') +
-                                        ': $checkoutDate',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: Ox.colors.blue,
-                                      fontSize: Ox.fontSizes.ref50,
-                                      fontWeight: Ox.fontWeights.bold,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: Ox.space.ref40),
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: Text(
-                                    intl(context,
-                                            'checklist.driver-checkout-total-label') +
-                                        ': $totalDate',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: Ox.colors.blue,
-                                      fontSize: Ox.fontSizes.ref50,
-                                      fontWeight: Ox.fontWeights.bold,
-                                    ),
-                                  ),
-                                ),
-                                if (_driverCheckoutUnavailable ||
-                                    _driverCheckoutIncomplete)
-                                  Padding(
-                                    padding:
-                                        EdgeInsets.only(top: Ox.space.ref260.h),
-                                    child: Text(
-                                      _driverCheckoutUnavailable
-                                          ? intl(
-                                              context,
-                                              'checklist.driver-checkout-error',
+                              SizedBox(height: Ox.space.ref40),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  OxActionButton(
+                                    color: Ox.colors.white,
+                                    backgroundColor: Ox.colors.error,
+                                    isLoading: controller.status ==
+                                        StepStatus.noLoading,
+                                    onPressed: !_isCompartmented ||
+                                            selectedCompartment != null
+                                        ? () => controller.onSubmitConfirmation(
+                                              accepted: false,
+                                              flowCode:
+                                                  widget.flowStep.flowCode,
+                                              schedule: widget.schedule,
+                                              hasTag: false,
+                                              compartment: selectedCompartment
+                                                  ?.compartment,
                                             )
-                                          : intl(
-                                              context,
-                                              'checklist.driver-checkout-missing-data',
-                                            ),
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        color: Ox.colors.error,
-                                        fontSize: Ox.fontSizes.ref40,
-                                        fontWeight: Ox.fontWeights.medium,
-                                      ),
-                                    ),
+                                        : null,
+                                    prefixIcon: Icons.thumb_down,
+                                    text: intl(context, 'app.no'),
                                   ),
-                              ],
-                            ),
-                            SizedBox(height: Ox.space.ref100),
-                            Divider(
-                              color: Ox.colors.grayLight,
-                              height: 1,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                OxActionButton(
-                                  color: Ox.colors.white,
-                                  backgroundColor: Ox.colors.error,
-                                  isLoading:
-                                      controller.status == StepStatus.noLoading,
-                                  onPressed: !_isCompartmented ||
-                                          selectedCompartment != null
-                                      ? () => controller.onSubmitConfirmation(
-                                            accepted: false,
-                                            flowCode: widget.flowStep.flowCode,
-                                            schedule: widget.schedule,
-                                            hasTag: false,
-                                            compartment: selectedCompartment
-                                                ?.compartment,
-                                          )
-                                      : null,
-                                  prefixIcon: Icons.thumb_down,
-                                  text: intl(context, 'app.no'),
-                                ),
-                                OxActionButton(
-                                  color: Ox.colors.black,
-                                  backgroundColor: Ox.colors.green,
-                                  isLoading: controller.status ==
-                                      StepStatus.yesLoading,
-                                  onPressed: (!widget.hasTag ||
-                                              controller.tag.isNotEmpty) &&
-                                          (!_isCompartmented ||
-                                              selectedCompartment != null) &&
-                                          !_driverCheckoutUnavailable &&
-                                          !_driverCheckoutIncomplete &&
-                                          !_isDriverCheckoutLoading
-                                      ? () async {
-                                          // Se tem assinaturas configuradas, mostra tela de assinatura
-                                          if (_signatures != null && _signatures!.isNotEmpty) {
-                                            setState(() {
-                                              _showSignatureStep = true;
-                                            });
-                                          } else {
-                                            // Senão, submete diretamente sem assinatura
-                                            await controller.onSubmitConfirmation(
+                                  OxActionButton(
+                                    color: Ox.colors.black,
+                                    backgroundColor: Ox.colors.green,
+                                    isLoading: controller.status ==
+                                        StepStatus.yesLoading,
+                                    onPressed: (!widget.hasTag ||
+                                                controller.tag.isNotEmpty) &&
+                                            (!_isCompartmented ||
+                                                selectedCompartment != null)
+                                        ? () => controller.onSubmitConfirmation(
                                               accepted: true,
-                                              flowCode: widget.flowStep.flowCode,
+                                              flowCode:
+                                                  widget.flowStep.flowCode,
                                               schedule: widget.schedule,
                                               hasTag: widget.hasTag,
                                               compartment: selectedCompartment
                                                   ?.compartment,
-                                            );
-                                          }
-                                        }
-                                      : null,
-                                  suffixIcon: Icons.thumb_up,
-                                  text: intl(context, 'app.yes'),
-                                ),
-                              ],
-                            ),
-                          ],
-                        )
-                          : Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                OxChecklistHeader(
-                                  icon: widget.icon,
-                                  flowDescription: widget.flowStep.getLabel(),
-                                  step: widget.step,
-                                  scheduleNumber: widget.schedule.scheduleNumber,
-                                ),
-                                SizedBox(height: Ox.space.ref20),
-                                Expanded(
-                                  child: ListView(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: Ox.space.ref20.w,
-                                      vertical: Ox.space.ref20.h,
-                                    ),
+                                            )
+                                        : null,
+                                    suffixIcon: Icons.thumb_up,
+                                    text: intl(context, 'app.yes'),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          )
+                        : !_showSignatureStep
+                            ? Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  OxChecklistHeader(
+                                    icon: widget.icon,
+                                    flowDescription: widget.flowStep.getLabel(),
+                                    step: widget.step,
+                                    scheduleNumber:
+                                        widget.schedule.scheduleNumber,
+                                  ),
+                                  SizedBox(height: Ox.space.ref40),
+                                  Column(
                                     children: [
-                                      // Indicador de progresso (ex: "1/2")
-                                      Text(
-                                        '${_currentSignatureIndex + 1}/${_signatures?.length ?? 0}',
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          color: Ox.colors.blue,
-                                          fontSize: Ox.fontSizes.ref40,
-                                          fontWeight: Ox.fontWeights.medium,
-                                        ),
-                                      ),
-                                      SizedBox(height: Ox.space.ref20),
-                                      // Descrição da assinatura atual
-                                      Text(
-                                        _signatures != null && _signatures!.isNotEmpty
-                                            ? controller.getSignatureDescription(_signatures![_currentSignatureIndex])
-                                            : 'Assinatura do Motorista',
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          color: Ox.colors.blue,
-                                          fontSize: Ox.fontSizes.ref60,
-                                          fontWeight: Ox.fontWeights.bold,
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: Text(
+                                          (driverQuestion?.isNotEmpty == true)
+                                              ? driverQuestion!
+                                              : intl(
+                                                  context,
+                                                  'checklist.driver-checkout-title',
+                                                ),
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            color: Ox.colors.blue,
+                                            fontSize: Ox.fontSizes.ref50,
+                                            fontWeight: Ox.fontWeights.bold,
+                                          ),
                                         ),
                                       ),
                                       SizedBox(height: Ox.space.ref40),
-                                      OxSignature(
-                                        height: Ox.size.ref400.w,
-                                        orientation: OxSignatureOrientationEnum.landscape,
-                                        controller: _signatureController,
+                                      SizedBox(height: Ox.space.ref40),
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: Text(
+                                          intl(context,
+                                                  'checklist.driver-checkout-check-in-label') +
+                                              ': $checkinDate',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            color: Ox.colors.blue,
+                                            fontSize: Ox.fontSizes.ref50,
+                                            fontWeight: Ox.fontWeights.bold,
+                                          ),
+                                        ),
                                       ),
-                                      SizedBox(height: Ox.space.ref100), // Espaçamento extra para evitar sobreposição
+                                      SizedBox(height: Ox.space.ref40),
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: Text(
+                                          intl(context,
+                                                  'checklist.driver-checkout-check-out-label') +
+                                              ': $checkoutDate',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            color: Ox.colors.blue,
+                                            fontSize: Ox.fontSizes.ref50,
+                                            fontWeight: Ox.fontWeights.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: Ox.space.ref40),
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: Text(
+                                          intl(context,
+                                                  'checklist.driver-checkout-total-label') +
+                                              ': $totalDate',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            color: Ox.colors.blue,
+                                            fontSize: Ox.fontSizes.ref50,
+                                            fontWeight: Ox.fontWeights.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      if (_driverCheckoutUnavailable ||
+                                          _driverCheckoutIncomplete)
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                              top: Ox.space.ref260.h),
+                                          child: Text(
+                                            _driverCheckoutUnavailable
+                                                ? intl(
+                                                    context,
+                                                    'checklist.driver-checkout-error',
+                                                  )
+                                                : intl(
+                                                    context,
+                                                    'checklist.driver-checkout-missing-data',
+                                                  ),
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: Ox.colors.error,
+                                              fontSize: Ox.fontSizes.ref40,
+                                              fontWeight: Ox.fontWeights.medium,
+                                            ),
+                                          ),
+                                        ),
                                     ],
                                   ),
-                                ),
-                                SizedBox(height: Ox.space.ref60),
-                                Divider(
-                                  color: Ox.colors.grayLight,
-                                  height: 1,
-                                ),
-                                SizedBox(height: Ox.space.ref20),
-                                Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: Ox.space.ref20.w),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  SizedBox(height: Ox.space.ref100),
+                                  Divider(
+                                    color: Ox.colors.grayLight,
+                                    height: 1,
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
                                     children: [
-                                    // Botão Voltar (sempre visível, cancela tudo)
-                                    if (_isFirstSignature())
                                       OxActionButton(
-                                        color: Ox.colors.blue,
-                                        backgroundColor: Ox.colors.white,
-                                        onPressed: () {
-                                          setState(() {
-                                            _showSignatureStep = false;
-                                            _currentSignatureIndex = 0;
-                                            _signatureController.clear();
-                                            _signatureImages = List.generate(_signatures!.length, (index) => '');
-                                          });
-                                        },
-                                        prefixIcon: Icons.arrow_back,
-                                        text: intl(context, 'app.leave'),
+                                        color: Ox.colors.white,
+                                        backgroundColor: Ox.colors.error,
+                                        isLoading: controller.status ==
+                                            StepStatus.noLoading,
+                                        onPressed: !_isCompartmented ||
+                                                selectedCompartment != null
+                                            ? () =>
+                                                controller.onSubmitConfirmation(
+                                                  accepted: false,
+                                                  flowCode:
+                                                      widget.flowStep.flowCode,
+                                                  schedule: widget.schedule,
+                                                  hasTag: false,
+                                                  compartment:
+                                                      selectedCompartment
+                                                          ?.compartment,
+                                                )
+                                            : null,
+                                        prefixIcon: Icons.thumb_down,
+                                        text: intl(context, 'app.no'),
                                       ),
-                                    // Botão Anterior (só aparece se não for a primeira)
-                                    if (!_isFirstSignature())
-                                      OxActionButton(
-                                        color: Ox.colors.blue,
-                                        backgroundColor: Ox.colors.white,
-                                        onPressed: () {
-                                          _goToPreviousSignature();
-                                        },
-                                        prefixIcon: Icons.arrow_back,
-                                        text: intl(context, 'app.back'),
-                                      ),
-                                    const Spacer(),
-                                    // Botão Próxima (aparece se não for a última)
-                                    if (!_isLastSignature())
                                       OxActionButton(
                                         color: Ox.colors.black,
                                         backgroundColor: Ox.colors.green,
-                                        onPressed: () {
-                                          _goToNextSignature();
-                                        },
-                                        suffixIcon: Icons.arrow_forward,
-                                        text: intl(context, 'app.next'),
-                                      ),
-                                    // Botão Confirmar (só na última assinatura)
-                                    if (_isLastSignature())
-                                      OxActionButton(
-                                        color: Ox.colors.black,
-                                        backgroundColor: Ox.colors.green,
-                                        isLoading: controller.status == StepStatus.yesLoading,
-                                        onPressed: () async {
-                                          // Validar se todas as assinaturas foram preenchidas
-                                          bool allSigned = true;
-                                          for (int i = 0; i < _signatureImages.length; i++) {
-                                            if (_signatureImages[i].isEmpty) {
-                                              allSigned = false;
-                                              break;
-                                            }
-                                          }
-                                          
-                                          if (!allSigned) {
-                                            await showErrorFlushbar(
-                                              message: 'Por favor, complete todas as assinaturas antes de confirmar',
-                                            ).show(context);
-                                            return;
-                                          }
-                                          
-                                          // Cria a lista com TODAS as assinaturas
-                                          final signatures = _signatures!.asMap().entries.map((entry) {
-                                            return ChecklistSignatureEntity(
-                                              id: entry.value.id,
-                                              image: _signatureImages[entry.key],
-                                              createdAt: DateTime.now().toString(),
-                                              mimeType: 'image/png',
-                                              skipped: _signatureImages[entry.key].isEmpty,
-                                            );
-                                          }).toList();
-                                          
-                                          // Envia com TODAS as assinaturas
-                                          await controller.onSubmitWithQuestions(
-                                            accepted: true,
-                                            flowCode: widget.flowStep.flowCode,
-                                            schedule: widget.schedule,
-                                            answers: [],
-                                            signatures: signatures,
-                                            compartment: selectedCompartment?.compartment,
-                                          );
-                                        },
-                                        suffixIcon: Icons.check,
-                                        text: intl(context, 'app.confirm'),
+                                        isLoading: controller.status ==
+                                            StepStatus.yesLoading,
+                                        onPressed: (!widget.hasTag ||
+                                                    controller
+                                                        .tag.isNotEmpty) &&
+                                                (!_isCompartmented ||
+                                                    selectedCompartment !=
+                                                        null) &&
+                                                !_driverCheckoutUnavailable &&
+                                                !_driverCheckoutIncomplete &&
+                                                !_isDriverCheckoutLoading
+                                            ? () async {
+                                                // Se tem assinaturas configuradas, mostra tela de assinatura
+                                                if (_signatures != null &&
+                                                    _signatures!.isNotEmpty) {
+                                                  setState(() {
+                                                    _showSignatureStep = true;
+                                                  });
+                                                } else {
+                                                  // Senão, submete diretamente sem assinatura
+                                                  await controller
+                                                      .onSubmitConfirmation(
+                                                    accepted: true,
+                                                    flowCode: widget
+                                                        .flowStep.flowCode,
+                                                    schedule: widget.schedule,
+                                                    hasTag: widget.hasTag,
+                                                    compartment:
+                                                        selectedCompartment
+                                                            ?.compartment,
+                                                  );
+                                                }
+                                              }
+                                            : null,
+                                        suffixIcon: Icons.thumb_up,
+                                        text: intl(context, 'app.yes'),
                                       ),
                                     ],
                                   ),
-                                ),
-                              ],
-                            ),
+                                ],
+                              )
+                            : Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  OxChecklistHeader(
+                                    icon: widget.icon,
+                                    flowDescription: widget.flowStep.getLabel(),
+                                    step: widget.step,
+                                    scheduleNumber:
+                                        widget.schedule.scheduleNumber,
+                                  ),
+                                  SizedBox(height: Ox.space.ref20),
+                                  Expanded(
+                                    child: Scrollbar(
+                                      thumbVisibility: true,
+                                      thickness: 10,
+                                      radius: const Radius.circular(10),
+                                      child: ListView(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: Ox.space.ref20.w,
+                                          vertical: Ox.space.ref20.h,
+                                        ),
+                                        children: [
+                                          // Indicador de progresso (ex: "1/2")
+                                          Text(
+                                            '${_currentSignatureIndex + 1}/${_signatures?.length ?? 0}',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: Ox.colors.blue,
+                                              fontSize: Ox.fontSizes.ref40,
+                                              fontWeight: Ox.fontWeights.medium,
+                                            ),
+                                          ),
+                                          SizedBox(height: Ox.space.ref20),
+                                          // Descrição da assinatura atual
+                                          Text(
+                                            _signatures != null &&
+                                                    _signatures!.isNotEmpty
+                                                ? controller
+                                                    .getSignatureDescription(
+                                                        _signatures![
+                                                            _currentSignatureIndex])
+                                                : 'Assinatura do Motorista',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: Ox.colors.blue,
+                                              fontSize: Ox.fontSizes.ref60,
+                                              fontWeight: Ox.fontWeights.bold,
+                                            ),
+                                          ),
+                                          SizedBox(height: Ox.space.ref40),
+                                          OxSignature(
+                                            height: Ox.size.ref400.w,
+                                            orientation:
+                                                OxSignatureOrientationEnum
+                                                    .landscape,
+                                            controller: _signatureController,
+                                          ),
+                                          SizedBox(
+                                              height: Ox.space
+                                                  .ref100), // Espaçamento extra para evitar sobreposição
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: Ox.space.ref60),
+                                  Divider(
+                                    color: Ox.colors.grayLight,
+                                    height: 1,
+                                  ),
+                                  SizedBox(height: Ox.space.ref20),
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: Ox.space.ref20.w),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        // Botão Voltar (sempre visível, cancela tudo)
+                                        if (_isFirstSignature())
+                                          OxActionButton(
+                                            color: Ox.colors.blue,
+                                            backgroundColor: Ox.colors.white,
+                                            onPressed: () {
+                                              setState(() {
+                                                _showSignatureStep = false;
+                                                _currentSignatureIndex = 0;
+                                                _signatureController.clear();
+                                                _signatureImages =
+                                                    List.generate(
+                                                        _signatures!.length,
+                                                        (index) => '');
+                                              });
+                                            },
+                                            prefixIcon: Icons.arrow_back,
+                                            text: intl(context, 'app.leave'),
+                                          ),
+                                        // Botão Anterior (só aparece se não for a primeira)
+                                        if (!_isFirstSignature())
+                                          OxActionButton(
+                                            color: Ox.colors.blue,
+                                            backgroundColor: Ox.colors.white,
+                                            onPressed: () {
+                                              _goToPreviousSignature();
+                                            },
+                                            prefixIcon: Icons.arrow_back,
+                                            text: intl(context, 'app.back'),
+                                          ),
+                                        const Spacer(),
+                                        // Botão Próxima (aparece se não for a última)
+                                        if (!_isLastSignature())
+                                          OxActionButton(
+                                            color: Ox.colors.black,
+                                            backgroundColor: Ox.colors.green,
+                                            onPressed: () {
+                                              _goToNextSignature();
+                                            },
+                                            suffixIcon: Icons.arrow_forward,
+                                            text: intl(context, 'app.next'),
+                                          ),
+                                        // Botão Confirmar (só na última assinatura)
+                                        if (_isLastSignature())
+                                          OxActionButton(
+                                            color: Ox.colors.black,
+                                            backgroundColor: Ox.colors.green,
+                                            isLoading: controller.status ==
+                                                StepStatus.yesLoading,
+                                            onPressed: () async {
+                                              // Validar se todas as assinaturas foram preenchidas
+                                              bool allSigned = true;
+                                              for (int i = 0;
+                                                  i < _signatureImages.length;
+                                                  i++) {
+                                                if (_signatureImages[i]
+                                                    .isEmpty) {
+                                                  allSigned = false;
+                                                  break;
+                                                }
+                                              }
+
+                                              if (!allSigned) {
+                                                await showErrorFlushbar(
+                                                  message:
+                                                      'Por favor, complete todas as assinaturas antes de confirmar',
+                                                ).show(context);
+                                                return;
+                                              }
+
+                                              // Cria a lista com TODAS as assinaturas
+                                              final signatures = _signatures!
+                                                  .asMap()
+                                                  .entries
+                                                  .map((entry) {
+                                                return ChecklistSignatureEntity(
+                                                  id: entry.value.id,
+                                                  image: _signatureImages[
+                                                      entry.key],
+                                                  createdAt:
+                                                      DateTime.now().toString(),
+                                                  mimeType: 'image/png',
+                                                  skipped: _signatureImages[
+                                                          entry.key]
+                                                      .isEmpty,
+                                                );
+                                              }).toList();
+
+                                              // Envia com TODAS as assinaturas
+                                              await controller
+                                                  .onSubmitWithQuestions(
+                                                accepted: true,
+                                                flowCode:
+                                                    widget.flowStep.flowCode,
+                                                schedule: widget.schedule,
+                                                answers: [],
+                                                signatures: signatures,
+                                                compartment: selectedCompartment
+                                                    ?.compartment,
+                                              );
+                                            },
+                                            suffixIcon: Icons.check,
+                                            text: intl(context, 'app.confirm'),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                  ),
                 ),
-              ),
               ),
             ),
           ),
